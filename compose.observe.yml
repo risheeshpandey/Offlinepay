@@ -1,0 +1,53 @@
+# Independent OPTIONAL stack. Do not start ELK and a load test together on 8 GB RAM.
+name: offlinepay-observability
+services:
+  zipkin:
+    image: openzipkin/zipkin:3.5.1
+    profiles: [tracing]
+    ports: ['127.0.0.1:9412:9411']
+    mem_limit: 384m
+    environment:
+      JAVA_OPTS: -Xms64m -Xmx192m
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.5.5
+    profiles: [logs]
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: 'false'
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    ports: ['127.0.0.1:9201:9200']
+    mem_limit: 1536m
+    volumes: [search-data:/usr/share/elasticsearch/data]
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://localhost:9200/_cluster/health >/dev/null']
+      interval: 15s
+      timeout: 5s
+      retries: 12
+  logstash:
+    image: docker.elastic.co/logstash/logstash:9.5.5
+    profiles: [logs]
+    depends_on:
+      elasticsearch: {condition: service_healthy}
+    environment:
+      LS_JAVA_OPTS: -Xms256m -Xmx256m
+      XPACK_MONITORING_ENABLED: 'false'
+    mem_limit: 768m
+    volumes:
+      - ./observability/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./logs:/input:ro
+      - logstash-state:/usr/share/logstash/data
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.5.5
+    profiles: [logs]
+    depends_on:
+      elasticsearch: {condition: service_healthy}
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      XPACK_SECURITY_ENABLED: 'false'
+      TELEMETRY_ENABLED: 'false'
+      NODE_OPTIONS: --max-old-space-size=384
+    ports: ['127.0.0.1:5602:5601']
+    mem_limit: 768m
+volumes:
+  search-data:
+  logstash-state:

@@ -1,0 +1,25 @@
+target/
+.env
+.idea/
+*.iml
+*.log
+logs/
+.vscode/
+.DS_Store
+
+# Local signing/device keys, proofs and client state; never commit secrets.
+local-keys/
+local-device*/
+local-demo/
+*.pk8
+
+**/private-key.txt
+!src/test/resources/keys/private-key.txt
+
+# Local benchmark outputs can contain operational data; publish reviewed reports only.
+benchmarks/results/
+
+.env.kubernetes
+
+__pycache__/
+*.pyc

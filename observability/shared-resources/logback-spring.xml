@@ -1,0 +1,20 @@
+<configuration>
+ <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+ <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="offlinepay"/>
+ <springProperty scope="context" name="APP_LOG" source="logging.file.name" defaultValue="logs/offlinepay.log"/>
+ <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+  <encoder><pattern>%d{yyyy-MM-dd HH:mm:ss.SSS,Asia/Kolkata} %-5level [${APP_NAME}] [requestId=%X{requestId:-none}] [traceId=%X{traceId:-none} spanId=%X{spanId:-none}] %logger{36} - %msg%n</pattern></encoder>
+ </appender>
+ <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+  <file>${APP_LOG}</file>
+  <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+   <fileNamePattern>${APP_LOG}.%d{yyyy-MM-dd}.%i.gz</fileNamePattern><maxFileSize>10MB</maxFileSize><maxHistory>7</maxHistory><totalSizeCap>100MB</totalSizeCap>
+  </rollingPolicy>
+  <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+   <timeZone>Asia/Kolkata</timeZone><includeContext>false</includeContext>
+   <includeMdcKeyName>requestId</includeMdcKeyName><includeMdcKeyName>traceId</includeMdcKeyName><includeMdcKeyName>spanId</includeMdcKeyName>
+   <customFields>{"service":"${APP_NAME}"}</customFields>
+  </encoder>
+ </appender>
+ <root level="INFO"><appender-ref ref="CONSOLE"/><appender-ref ref="JSON_FILE"/></root>
+</configuration>

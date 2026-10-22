@@ -1,0 +1,75 @@
+{
+  "runId": "m6-one-vu-001",
+  "evidence": "User-pasted k6 v1.3.0 JSON; credentials and setup_data intentionally not copied",
+  "configuration": {
+    "vus": 1,
+    "activeDurationSeconds": 30,
+    "reportedTestRunDurationMs": 31407.2946,
+    "sharedSenderWallet": true,
+    "targetReadFraction": 0.7,
+    "targetTransferFraction": 0.3,
+    "database": "PostgreSQL",
+    "operatingSystem": "Windows amd64",
+    "installedRamGiBApprox": 8,
+    "tracingSampleProbability": 0,
+    "rateLimiterEnabled": true,
+    "authLimitPerMinute": 10000,
+    "apiLimitPerMinute": 100000
+  },
+  "results": {
+    "businessRequests": 1448,
+    "walletReads": 1015,
+    "transfersAccepted": 433,
+    "businessRequestsPerSecondK6": 46.10393917851173,
+    "totalHttpRequestsIncludingSetup": 1457,
+    "httpFailureRate": 0,
+    "businessFailureRate": 0,
+    "rateLimited": 0,
+    "serverErrors": 0,
+    "allConfiguredThresholdsPassed": true,
+    "walletLatencyMs": {
+      "average": 13.900830935960615,
+      "median": 11.0868,
+      "p95": 26.18901,
+      "p99": 44.97224000000004,
+      "max": 311.5008
+    },
+    "transferLatencyMs": {
+      "average": 35.889552886836036,
+      "median": 30.3266,
+      "p95": 71.58657999999998,
+      "p99": 102.18162400000003,
+      "max": 289.8732
+    }
+  },
+  "replayCheck": {
+    "checksPassed": 11,
+    "checksFailed": 0,
+    "confirmedDatabaseTransferCount": 1,
+    "confirmedTransferredInr": 1,
+    "confirmedSenderBalanceInr": 99999,
+    "confirmedReceiverBalanceInr": 1
+  },
+  "pending": [
+    "Peak resource measurements",
+    "Maximum capacity and sustained notification rate",
+    "Deployment runtime scaling"
+  ],
+  "maximumCapacityClaim": false,
+  "cumulativeReconciliation": {
+    "topups": 2,
+    "transfers": 434,
+    "walletTotalPaise": 20000000,
+    "issuedPaise": 20000000,
+    "publishedEvents": 436,
+    "consumedEvents": 436,
+    "expectedNotices": 870,
+    "actualNotices": 870,
+    "negativeWallets": 0,
+    "unbalancedOperations": 0,
+    "duplicateKeys": 0,
+    "duplicateNotices": 0,
+    "openDeadLetters": 0
+  },
+  "followUp": "m6-load-results.json records completed 1/5/10-VU runs and successful reconciliation"
+}

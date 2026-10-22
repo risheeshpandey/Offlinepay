@@ -1,0 +1,656 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: offlinepay
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: offlinepay-config
+  namespace: offlinepay
+data:
+  DB_URL: jdbc:postgresql://postgres:5432/offlinepay
+  DB_USER: offlinepay
+  NOTIFICATION_DB_URL: jdbc:postgresql://postgres:5432/offlinepay_notifications
+  NOTIFICATION_DB_USER: offlinepay_notifications
+  REDIS_HOST: redis
+  REDIS_PORT: '6379'
+  KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+  EUREKA_URL: http://discovery:8762/eureka/
+  ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discovery
+  namespace: offlinepay
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels: &id001
+      app.kubernetes.io/name: discovery
+      app.kubernetes.io/part-of: offlinepay
+  template:
+    metadata:
+      labels: *id001
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 40
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+      - name: discovery
+        image: offlinepay/discovery:m6
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: observe
+        - name: BIND_ADDRESS
+          value: 0.0.0.0
+        - name: MANAGEMENT_ADDRESS
+          value: 0.0.0.0
+        - name: SERVICE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: JAVA_TOOL_OPTIONS
+          value: -Xms64m -Xmx256m -Duser.timezone=Asia/Kolkata
+        - name: TRACE_SAMPLE_PROBABILITY
+          value: "0.1"
+        - name: ZIPKIN_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: ZIPKIN_ENDPOINT
+        ports:
+        - name: http
+          containerPort: 8762
+        - name: management
+          containerPort: 9762
+        resources:
+          requests:
+            cpu: 200m
+            memory: 384Mi
+          limits:
+            cpu: 1000m
+            memory: 768Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        startupProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: management
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+        - name: temp
+          mountPath: /tmp
+      volumes:
+      - name: logs
+        emptyDir:
+          sizeLimit: 128Mi
+      - name: temp
+        emptyDir:
+          sizeLimit: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: discovery
+  namespace: offlinepay
+spec:
+  selector:
+    app.kubernetes.io/name: discovery
+    app.kubernetes.io/part-of: offlinepay
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8762
+    targetPort: http
+  - name: management
+    port: 9762
+    targetPort: management
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core
+  namespace: offlinepay
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels: &id001
+      app.kubernetes.io/name: core
+      app.kubernetes.io/part-of: offlinepay
+  template:
+    metadata:
+      labels: *id001
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 40
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+      - name: core
+        image: offlinepay/core:m6
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: split,observe
+        - name: BIND_ADDRESS
+          value: 0.0.0.0
+        - name: MANAGEMENT_ADDRESS
+          value: 0.0.0.0
+        - name: SERVICE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: JAVA_TOOL_OPTIONS
+          value: -Xms64m -Xmx384m -Duser.timezone=Asia/Kolkata
+        - name: TRACE_SAMPLE_PROBABILITY
+          value: "0.1"
+        - name: ZIPKIN_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: ZIPKIN_ENDPOINT
+        - name: EUREKA_URL
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: EUREKA_URL
+        - name: DB_URL
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: DB_URL
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: DB_USER
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: REDIS_PORT
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: KAFKA_BOOTSTRAP_SERVERS
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: offlinepay-secrets
+              key: DB_PASSWORD
+        - name: JWT_SECRET_BASE64
+          valueFrom:
+            secretKeyRef:
+              name: offlinepay-secrets
+              key: JWT_SECRET_BASE64
+        - name: INTERNAL_SERVICE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: offlinepay-secrets
+              key: INTERNAL_SERVICE_TOKEN
+        - name: OFFLINE_SIGNING_PRIVATE_KEY_PATH
+          value: /keys/private-key.txt
+        - name: OFFLINE_SIGNING_PUBLIC_KEY_PATH
+          value: /keys/public-key.txt
+        - name: AUTH_COOKIE_SECURE
+          value: 'true'
+        ports:
+        - name: http
+          containerPort: 9031
+        - name: management
+          containerPort: 9131
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 768Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        startupProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: management
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+        - name: temp
+          mountPath: /tmp
+        - name: signing-keys
+          mountPath: /keys
+          readOnly: true
+      volumes:
+      - name: logs
+        emptyDir:
+          sizeLimit: 128Mi
+      - name: temp
+        emptyDir:
+          sizeLimit: 128Mi
+      - name: signing-keys
+        secret:
+          secretName: offlinepay-signing-keys
+          defaultMode: 288
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: core
+  namespace: offlinepay
+spec:
+  selector:
+    app.kubernetes.io/name: core
+    app.kubernetes.io/part-of: offlinepay
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 9031
+    targetPort: http
+  - name: management
+    port: 9131
+    targetPort: management
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: core
+  namespace: offlinepay
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: core
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 120
+    scaleUp:
+      stabilizationWindowSeconds: 30
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifications
+  namespace: offlinepay
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels: &id001
+      app.kubernetes.io/name: notifications
+      app.kubernetes.io/part-of: offlinepay
+  template:
+    metadata:
+      labels: *id001
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 40
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+      - name: notifications
+        image: offlinepay/notifications:m6
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: observe
+        - name: BIND_ADDRESS
+          value: 0.0.0.0
+        - name: MANAGEMENT_ADDRESS
+          value: 0.0.0.0
+        - name: SERVICE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: JAVA_TOOL_OPTIONS
+          value: -Xms64m -Xmx256m -Duser.timezone=Asia/Kolkata
+        - name: TRACE_SAMPLE_PROBABILITY
+          value: "0.1"
+        - name: ZIPKIN_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: ZIPKIN_ENDPOINT
+        - name: EUREKA_URL
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: EUREKA_URL
+        - name: NOTIFICATION_DB_URL
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: NOTIFICATION_DB_URL
+        - name: NOTIFICATION_DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: NOTIFICATION_DB_USER
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: KAFKA_BOOTSTRAP_SERVERS
+        - name: NOTIFICATION_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: offlinepay-secrets
+              key: NOTIFICATION_DB_PASSWORD
+        - name: INTERNAL_SERVICE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: offlinepay-secrets
+              key: INTERNAL_SERVICE_TOKEN
+        ports:
+        - name: http
+          containerPort: 9032
+        - name: management
+          containerPort: 9132
+        resources:
+          requests:
+            cpu: 200m
+            memory: 384Mi
+          limits:
+            cpu: 1000m
+            memory: 768Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        startupProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: management
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+        - name: temp
+          mountPath: /tmp
+      volumes:
+      - name: logs
+        emptyDir:
+          sizeLimit: 128Mi
+      - name: temp
+        emptyDir:
+          sizeLimit: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notifications
+  namespace: offlinepay
+spec:
+  selector:
+    app.kubernetes.io/name: notifications
+    app.kubernetes.io/part-of: offlinepay
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 9032
+    targetPort: http
+  - name: management
+    port: 9132
+    targetPort: management
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: notifications
+  namespace: offlinepay
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: notifications
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 120
+    scaleUp:
+      stabilizationWindowSeconds: 30
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  namespace: offlinepay
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels: &id001
+      app.kubernetes.io/name: gateway
+      app.kubernetes.io/part-of: offlinepay
+  template:
+    metadata:
+      labels: *id001
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 40
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+      - name: gateway
+        image: offlinepay/gateway:m6
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: observe
+        - name: BIND_ADDRESS
+          value: 0.0.0.0
+        - name: MANAGEMENT_ADDRESS
+          value: 0.0.0.0
+        - name: SERVICE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: JAVA_TOOL_OPTIONS
+          value: -Xms64m -Xmx256m -Duser.timezone=Asia/Kolkata
+        - name: TRACE_SAMPLE_PROBABILITY
+          value: "0.1"
+        - name: ZIPKIN_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: ZIPKIN_ENDPOINT
+        - name: EUREKA_URL
+          valueFrom:
+            configMapKeyRef:
+              name: offlinepay-config
+              key: EUREKA_URL
+        ports:
+        - name: http
+          containerPort: 9030
+        - name: management
+          containerPort: 9130
+        resources:
+          requests:
+            cpu: 200m
+            memory: 384Mi
+          limits:
+            cpu: 1000m
+            memory: 768Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        startupProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: management
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+        - name: temp
+          mountPath: /tmp
+      volumes:
+      - name: logs
+        emptyDir:
+          sizeLimit: 128Mi
+      - name: temp
+        emptyDir:
+          sizeLimit: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  namespace: offlinepay
+spec:
+  selector:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/part-of: offlinepay
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 9030
+    targetPort: http
+  - name: management
+    port: 9130
+    targetPort: management
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: gateway
+  namespace: offlinepay
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: gateway
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 120
+    scaleUp:
+      stabilizationWindowSeconds: 30

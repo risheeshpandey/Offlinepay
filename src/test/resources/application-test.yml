@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:offlinepay;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=5000
+    username: sa
+    password: ""
+    hikari:
+      connection-init-sql: ""
+  flyway:
+    enabled: false
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema-test.sql
+offlinepay:
+  # Public test fixture only; never use in deployment.
+  jwt-secret-base64: AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=
+  messaging:
+    enabled: false
+  workers-enabled: false
+  rate-limit:
+    enabled: false
+  demo-topups-enabled: true
+  cookies-secure: false
+  signing-private-key-path: src/test/resources/keys/private-key.txt
+  signing-public-key-path: src/test/resources/keys/public-key.txt
+
+logging:
+  file:
+    name: target/test-logs/offlinepay.log

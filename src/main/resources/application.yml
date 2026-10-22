@@ -1,0 +1,124 @@
+server:
+  port: 9030
+  shutdown: graceful
+spring:
+  application:
+    name: offlinepay
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5436/offlinepay}
+    username: ${DB_USER:offlinepay}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 3000
+      connection-init-sql: "SET lock_timeout = '3s'"
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+  task:
+    scheduling:
+      pool:
+        size: 2
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6381}
+      timeout: 500ms
+      connect-timeout: 500ms
+      repositories:
+        enabled: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
+    admin:
+      fail-fast: false
+    template:
+      observation-enabled: true
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      properties:
+        enable.idempotence: true
+        max.block.ms: 3000
+        request.timeout.ms: 3000
+        delivery.timeout.ms: 8000
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      max-poll-records: 10
+      properties:
+        allow.auto.create.topics: false
+    listener:
+      missing-topics-fatal: false
+  jackson:
+    time-zone: Asia/Kolkata
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+offlinepay:
+  workers-enabled: ${WORKERS_ENABLED:true}
+  messaging:
+    enabled: ${MESSAGING_ENABLED:true}
+    topic: offlinepay.payment-committed.v1
+    poll-ms: 2000
+  notifications:
+    # Blank = durable in-app inbox only; no SMS/push is claimed.
+    webhook-url: ${NOTIFICATION_WEBHOOK_URL:}
+    webhook-token: ${NOTIFICATION_WEBHOOK_TOKEN:}
+    poll-ms: 3000
+  rate-limit:
+    enabled: ${RATE_LIMIT_ENABLED:true}
+    auth-per-minute: ${AUTH_RATE_LIMIT:30}
+    api-per-minute: ${API_RATE_LIMIT:120}
+  jwt-secret-base64: ${JWT_SECRET_BASE64}
+  issuer: offlinepay
+  token-lifetime: PT30M
+  demo-topups-enabled: false
+  offline-allowance-lifetime: ${OFFLINE_ALLOWANCE_LIFETIME:PT24H}
+  offline-sync-grace: ${OFFLINE_SYNC_GRACE:PT48H}
+  refresh-token-lifetime: P7D
+  cookies-secure: ${AUTH_COOKIE_SECURE:true}
+  signing-private-key-path: ${OFFLINE_SIGNING_PRIVATE_KEY_PATH:local-keys/private-key.txt}
+  signing-public-key-path: ${OFFLINE_SIGNING_PUBLIC_KEY_PATH:local-keys/public-key.txt}
+logging:
+  file:
+    name: ${LOG_FILE:logs/offlinepay.log}
+  pattern:
+    dateformat: "yyyy-MM-dd HH:mm:ss.SSS,Asia/Kolkata"
+    level: "%5p [requestId=%X{requestId:-none}]"
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 7
+      total-size-cap: 100MB
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      notificationProvider:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 2
+  bulkhead:
+    instances:
+      notificationProvider:
+        max-concurrent-calls: 4
+        max-wait-duration: 0
+
+eureka:
+  client:
+    enabled: ${DISCOVERY_ENABLED:false}

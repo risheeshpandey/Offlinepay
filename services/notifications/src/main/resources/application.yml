@@ -1,0 +1,109 @@
+server:
+  address: ${BIND_ADDRESS:127.0.0.1}
+  port: 9032
+  shutdown: graceful
+spring:
+  application:
+    name: offlinepay-notifications
+  datasource:
+    url: ${NOTIFICATION_DB_URL:jdbc:postgresql://localhost:5436/offlinepay_notifications}
+    username: ${NOTIFICATION_DB_USER:offlinepay_notifications}
+    password: ${NOTIFICATION_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 3
+      connection-timeout: 3000
+      connection-init-sql: "SET lock_timeout = '3s'"
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
+    consumer:
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      max-poll-records: 10
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        allow.auto.create.topics: false
+    template:
+      observation-enabled: true
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      properties:
+        enable.idempotence: true
+        max.block.ms: 3000
+        request.timeout.ms: 3000
+        delivery.timeout.ms: 8000
+    listener:
+      auto-startup: ${NOTIFICATION_CONSUMERS_ENABLED:true}
+  cloud:
+    loadbalancer:
+      cache:
+        enabled: false
+    openfeign:
+      client:
+        config:
+          offlinepay-core:
+            connectTimeout: 1000
+            readTimeout: 2000
+            loggerLevel: none
+  jackson:
+    time-zone: Asia/Kolkata
+offlinepay:
+  core-url: ${CORE_URL:}
+  internal-token: ${INTERNAL_SERVICE_TOKEN}
+  workers-enabled: ${WORKERS_ENABLED:true}
+  messaging:
+    topic: offlinepay.payment-committed.v1
+  notifications:
+    webhook-url: ${NOTIFICATION_WEBHOOK_URL:}
+    webhook-token: ${NOTIFICATION_WEBHOOK_TOKEN:}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+logging:
+  file:
+    name: logs/notifications.log
+  pattern:
+    dateformat: "yyyy-MM-dd HH:mm:ss.SSS,Asia/Kolkata"
+    level: "%5p [requestId=%X{requestId:-none}]"
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 7
+      total-size-cap: 100MB
+resilience4j:
+  circuitbreaker:
+    instances:
+      notificationProvider:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 2
+  bulkhead:
+    instances:
+      notificationProvider:
+        max-concurrent-calls: 4
+        max-wait-duration: 0
+
+eureka:
+  client:
+    enabled: ${DISCOVERY_ENABLED:true}
+    registry-fetch-interval-seconds: 5
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8762/eureka/}
+  instance:
+    prefer-ip-address: true
+    ip-address: ${SERVICE_IP:127.0.0.1}
+    instance-id: ${spring.application.name}:${eureka.instance.ip-address}:${server.port}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30

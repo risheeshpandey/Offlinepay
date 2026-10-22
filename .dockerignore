@@ -1,0 +1,17 @@
+.git
+.env
+target
+docs
+*.zip
+logs
+
+local-keys
+local-device*
+local-demo
+
+**/target
+.idea
+**/private-key.txt
+!src/test/resources/keys/private-key.txt
+
+.env.kubernetes

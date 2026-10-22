@@ -1,0 +1,30 @@
+name: Java 21 payment checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - run: mvn -B -f services/pom.xml verify
+      - name: Verify Eureka routing and Feign discovery
+        run: python3 scripts/verify_eureka_routing.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install observability smoke prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y redis-server
+          python3 -m pip install cryptography
+      - name: Verify metrics, HTTP traces and readiness in isolated processes
+        run: python3 scripts/verify_observability.py --redis /usr/bin/redis-server --output target/m6-ci

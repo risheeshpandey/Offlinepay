@@ -1,0 +1,607 @@
+{
+  "info": {
+    "name": "OfflinePay - Milestone 3",
+    "description": "Current manual flow: docs/milestone-3.md. Separate sender/receiver AT variables; RT remains in cookie jar. Sync credits money, unlike the Part 2 verify endpoint. V5 walkthrough deferred.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:9030",
+      "type": "string"
+    },
+    {
+      "key": "mobileNumber",
+      "value": "9000000101",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "DemoPassword123!",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "csrfToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "receiverWalletId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "allowanceId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "deviceId",
+      "value": "DEVICE-RP-002",
+      "type": "string"
+    },
+    {
+      "key": "devicePublicKey",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "deviceSignature",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reserveKey",
+      "value": "part2-reserve-001",
+      "type": "string"
+    },
+    {
+      "key": "paymentProofJson",
+      "value": "{}",
+      "type": "string"
+    },
+    {
+      "key": "senderAccessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "receiverAccessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "paymentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificationId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/actuator/health",
+        "auth": {
+          "type": "noauth"
+        }
+      }
+    },
+    {
+      "name": "02 Get CSRF (cookie + header token)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/auth/csrf",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 200) pm.collectionVariables.set(\"csrfToken\", pm.response.json().token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Signup (optional new account)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/signup",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Risheesh Demo\",\n  \"mobileNumber\": \"{{mobileNumber}}\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 201) pm.collectionVariables.set(\"userId\", pm.response.json().userId);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Login (RT goes to cookie jar)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"mobileNumber\": \"{{mobileNumber}}\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 200) pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Current wallet",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/wallets/me"
+      }
+    },
+    {
+      "name": "06 Demo topup (optional)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "part2-topup-001"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/demo/topups",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 1000\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "07 Register device (copy public fields from registration.json)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/devices",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"publicKey\": \"{{devicePublicKey}}\",\n  \"signature\": \"{{deviceSignature}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "08 Reserve INR 100",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "{{reserveKey}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/offline-allowances",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 100,\n  \"deviceId\": \"{{deviceId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 200) pm.collectionVariables.set(\"allowanceId\", pm.response.json().allowanceId);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Allowance details (IST expiry)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/offline-allowances/{{allowanceId}}"
+      }
+    },
+    {
+      "name": "10 Certificate (save JSON locally)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/offline-allowances/{{allowanceId}}/certificate"
+      }
+    },
+    {
+      "name": "11 Trusted server public key (save and pin)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/offline-protocol/server-key"
+      }
+    },
+    {
+      "name": "12 Verify as receiver (login as Bob first)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/offline-protocol/verify",
+        "body": {
+          "mode": "raw",
+          "raw": "{{paymentProofJson}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "13 Ledger",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/wallets/me/ledger?page=0&size=20"
+      }
+    },
+    {
+      "name": "14 Refresh (No Auth, no body)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/refresh",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 200) pm.collectionVariables.set(\"accessToken\", pm.response.json().accessToken);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 Logout (No Auth, no body)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/auth/logout",
+        "auth": {
+          "type": "noauth"
+        }
+      }
+    },
+    {
+      "name": "16 Revoke device (optional final test)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/devices/{{deviceId}}/revoke"
+      }
+    },
+    {
+      "name": "17 Sync original proof as receiver",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/offline-sync/payments",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{receiverAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{paymentProofJson}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 200) pm.collectionVariables.set(\"paymentId\", pm.response.json().paymentId);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "18 Read committed settlement",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/v1/offline-sync/payments/{{paymentId}}",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{receiverAccessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "19 Sender balance after sync",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/v1/wallets/me",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{senderAccessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "20 Receiver balance after sync",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/v1/wallets/me",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{receiverAccessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "21 Owner allowance counters and deadline",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/v1/offline-allowances/{{allowanceId}}",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{senderAccessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "22 Release unused after deadline (owner)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/offline-sync/allowances/{{allowanceId}}/release",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{senderAccessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "23 My notifications (sender)",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{senderAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/notifications?page=0&size=20",
+        "description": "Milestone 4: requires a NEW committed operation and Kafka consumption. Old proof retries do not create notifications."
+      }
+    },
+    {
+      "name": "24 My notifications (receiver)",
+      "request": {
+        "method": "GET",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{receiverAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/notifications?page=0&size=20",
+        "description": "Milestone 4: requires a NEW committed operation and Kafka consumption. Old proof retries do not create notifications."
+      }
+    },
+    {
+      "name": "25 Mark own notification read",
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{receiverAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/notifications/{{notificationId}}/read",
+        "description": "Milestone 4: requires a NEW committed operation and Kafka consumption. Old proof retries do not create notifications."
+      }
+    }
+  ]
+}

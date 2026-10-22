@@ -1,0 +1,52 @@
+server:
+  address: ${BIND_ADDRESS:127.0.0.1}
+  port: 9030
+  shutdown: graceful
+spring:
+  application:
+    name: offlinepay-gateway
+  cloud:
+    loadbalancer:
+      cache:
+        enabled: false
+    gateway:
+      server:
+        webflux:
+          httpclient:
+            connect-timeout: 1000
+            response-timeout: 5s
+          x-forwarded:
+            enabled: false
+          forwarded:
+            enabled: false
+offlinepay:
+  core-url: ${CORE_URL:lb://offlinepay-core}
+  notifications-url: ${NOTIFICATIONS_URL:lb://offlinepay-notifications}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+logging:
+  file:
+    name: logs/gateway.log
+  pattern:
+    dateformat: "yyyy-MM-dd HH:mm:ss.SSS,Asia/Kolkata"
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 7
+      total-size-cap: 100MB
+
+eureka:
+  client:
+    enabled: ${DISCOVERY_ENABLED:true}
+    registry-fetch-interval-seconds: 5
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8762/eureka/}
+  instance:
+    prefer-ip-address: true
+    ip-address: ${SERVICE_IP:127.0.0.1}
+    instance-id: ${spring.application.name}:${eureka.instance.ip-address}:${server.port}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30

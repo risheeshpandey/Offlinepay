@@ -1,0 +1,34 @@
+server:
+  address: ${BIND_ADDRESS:127.0.0.1}
+  port: 8762
+  shutdown: graceful
+spring:
+  application:
+    name: offlinepay-discovery
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://localhost:8762/eureka/
+  server:
+    # Keep self-preservation enabled; a temporary network failure must not evict every instance.
+    enable-self-preservation: true
+    response-cache-update-interval-ms: 5000
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+logging:
+  file:
+    name: logs/discovery.log
+  pattern:
+    dateformat: "yyyy-MM-dd HH:mm:ss.SSS,Asia/Kolkata"
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 7
+      total-size-cap: 100MB
