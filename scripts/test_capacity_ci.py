@@ -105,15 +105,20 @@ class CapacityPolicyTest(unittest.TestCase):
 
 class FakeRun(CapacityRun):
     """Only exercises selection/stop decisions; never produces a benchmark report."""
-    def __init__(self, levels, fail_confirmation=False, fail_warmup=False):
+    def __init__(self, levels, fail_confirmation=False, fail_warmup=False, residual_backlog=False):
         self.args = SimpleNamespace(levels=levels, seconds=30, confirm_seconds=180)
         self.report = {'stages': [], 'confirmation': None, 'concurrencyConfirmation': None}
         self.calls = []
         self.fail_confirmation, self.fail_warmup = fail_confirmation, fail_warmup
+        self.residual_backlog = residual_backlog
 
     def start(self): pass
     def isolation_probe(self): self.report['isolationPreflightPassed'] = True
-    def wait_delivery(self): return snapshot(), 0
+    def wait_delivery(self):
+        data = snapshot()
+        if self.residual_backlog and self.report.get('phase') == 'pre_confirmation_drain':
+            data['core']['unpublished'] = 1
+        return data, 0
     def save(self): pass
 
     def run_k6(self, name, vus, seconds, script='ci-mixed.js'):
@@ -127,6 +132,12 @@ class FakeRun(CapacityRun):
 
 
 class StageSelectionTest(unittest.TestCase):
+    def test_residual_backlog_prevents_new_confirmation_traffic(self):
+        run = FakeRun([10, 25], residual_backlog=True)
+        with self.assertRaisesRegex(RuntimeError, 'PRE_CONFIRMATION_DELIVERY_TIMEOUT'):
+            run.execute()
+        self.assertFalse(any(name.startswith('confirm') for name in run.calls))
+
     def test_stops_after_failure_and_confirms_rate_and_concurrency_separately(self):
         run = FakeRun([10, 25, 50, 100, 200])
         self.assertTrue(run.execute())

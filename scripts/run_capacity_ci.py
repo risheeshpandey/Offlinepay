@@ -192,6 +192,7 @@ class CapacityRun:
                        'workload': 'Fixed VUs; about 70% wallet reads and 30% INR1 transfers; one hot sender',
                        'rules': RULES, 'rateLimits': {'authPerMinute': 10000, 'apiPerMinute': 100000},
                        'redisTimeoutMs': 500, 'corePoolSize': 10, 'notificationPoolSize': 3,
+                       'outboxPollMs': self.args.outbox_poll_ms, 'outboxBatchSize': 20,
                        'heapsMiB': {'core': 512, 'notifications': 256, 'gateway': 256, 'discovery': 192},
                        'coLocatedLoadGenerator': True, 'maximumCapacityClaim': False,
                        'stages': [], 'confirmation': None, 'concurrencyConfirmation': None, 'status': 'STARTING'}
@@ -278,6 +279,8 @@ class CapacityRun:
                        '--logging.file.name='+str(self.private/(name+'.json.log')),
                        '--eureka.client.service-url.defaultZone='+self.env['EUREKA_URL'],
                        '--offlinepay.messaging.topic='+self.topic]
+            if name == 'core':
+                command.append(f'--offlinepay.messaging.poll-ms={self.args.outbox_poll_ms}')
             self.processes.append(subprocess.Popen(command, cwd=ROOT, env=self.env, stdout=log, stderr=subprocess.STDOUT))
             self.wait_ready(name)
             print(name+' readiness UP', flush=True)
@@ -431,6 +434,14 @@ class CapacityRun:
         self.report['highestObservedPassingStage'] = best
         self.report['highestPassingConcurrencyStage'] = highest_concurrency
         if best:
+            # A failed stage may leave a backlog. Do not attribute that earlier
+            # work to a new confirmation or start new traffic while it persists.
+            self.report['phase'] = 'pre_confirmation_drain'
+            pre_confirmation, seconds = self.wait_delivery()
+            self.report['preConfirmationReconciliation'] = pre_confirmation
+            self.report['preConfirmationDrainSeconds'] = seconds
+            if not delivery_ok(pre_confirmation):
+                raise RuntimeError('PRE_CONFIRMATION_DELIVERY_TIMEOUT')
             self.report['phase'] = 'confirmation'
             confirmation = self.run_k6('confirm-throughput-'+str(best['vus']), best['vus'], self.args.confirm_seconds)
             self.report['confirmation'] = confirmation
@@ -465,6 +476,7 @@ class CapacityRun:
         lines = ['# OfflinePay capacity observation', '', 'Status: '+self.report['status'], '',
                  'Fixed VUs, one shared sender, approximately 70% reads / 30% fresh transfers.',
                  'Application services, infrastructure and k6 share this runner. No universal maximum is claimed.', '',
+                 f"Outbox polling: {self.report.get('outboxPollMs')} ms; batch: 20. Default application polling is 2000 ms.", '',
                  '| Stage | VUs | Seconds | Observed business RPS | API pass | Delivery after drain | Overall pass |',
                  '| --- | ---: | ---: | ---: | --- | --- | --- |']
         confirmations = [self.report['confirmation']] if self.report['confirmation'] else []
@@ -501,12 +513,15 @@ def main():
     parser.add_argument('--seconds', type=int, default=30)
     parser.add_argument('--confirm-seconds', type=int, default=180)
     parser.add_argument('--drain-seconds', type=int, default=600)
+    parser.add_argument('--outbox-poll-ms', type=int, default=100,
+                        help='Recorded CI deployment setting; normal application default is 2000ms')
     parser.add_argument('--allow-local', action='store_true', help='Explicitly allow a disposable Linux/Docker local run')
     args = parser.parse_args()
     args.levels = [int(v) for v in args.levels.split(',')]
     if not (1 <= len(args.levels) <= 8 and args.levels == sorted(set(args.levels))
             and all(1 <= n <= 300 for n in args.levels) and 10 <= args.seconds <= 120
-            and 60 <= args.confirm_seconds <= 300 and 30 <= args.drain_seconds <= 900):
+            and 60 <= args.confirm_seconds <= 300 and 30 <= args.drain_seconds <= 900
+            and 50 <= args.outbox_poll_ms <= 5000):
         parser.error('Invalid bounded stage settings')
     if platform.system() != 'Linux' or (os.environ.get('GITHUB_ACTIONS') != 'true' and not args.allow_local):
         parser.error('Requires GitHub Actions Linux, or --allow-local on a disposable Linux/Docker host')

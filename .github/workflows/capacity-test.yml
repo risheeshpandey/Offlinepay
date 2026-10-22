@@ -18,6 +18,11 @@ on:
         default: '180'
         required: true
         type: string
+      outbox_poll_ms:
+        description: 'Outbox polling ms (50..5000); original application default is 2000'
+        default: '100'
+        required: true
+        type: string
   # An authorized push of the capacity branch starts the first run without a
   # workflow-dispatch API. Ordinary application pushes do not run a load test.
   push:
@@ -88,13 +93,15 @@ jobs:
           CAPACITY_LEVELS: ${{ inputs.levels || '10,25,50,100,200' }}
           CAPACITY_SECONDS: ${{ inputs.seconds || '30' }}
           CAPACITY_CONFIRM_SECONDS: ${{ inputs.confirmation_seconds || '180' }}
+          CAPACITY_OUTBOX_POLL_MS: ${{ inputs.outbox_poll_ms || '100' }}
         run: |
           set -euo pipefail
           timeout --signal=INT --kill-after=60s 70m python scripts/run_capacity_ci.py \
             --output target/capacity-report \
             --levels "$CAPACITY_LEVELS" \
             --seconds "$CAPACITY_SECONDS" \
-            --confirm-seconds "$CAPACITY_CONFIRM_SECONDS"
+            --confirm-seconds "$CAPACITY_CONFIRM_SECONDS" \
+            --outbox-poll-ms "$CAPACITY_OUTBOX_POLL_MS"
       - name: Publish readable run summary
         if: always()
         shell: bash

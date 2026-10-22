@@ -1,18 +1,35 @@
-> Eureka add-on is implemented on **8762**, with service-name Gateway/Feign routing. See [current upgrade and startup steps](docs/milestone-5-eureka.md). Notification data already migrated during M5 does not need another import.
-
-> Milestone 5 adds a separate notification service/database, Spring Cloud Gateway and OpenFeign. Existing root build remains supported. Read [the M5 upgrade and testing steps](docs/milestone-5.md) before switching ownership; preserve the old inbox using the documented one-time copy. Build all apps with `mvn -f services/pom.xml package`. M4 code walkthrough is deferred until after M5 testing.
-
 # OfflinePay
 
-A Java payment portfolio project by Risheesh Pandey. The first milestone is a virtual-money wallet with authenticated transfers, durable idempotency and a balanced journal. This release includes offline reservations, cookie refresh sessions, registered Ed25519 devices, signed allowances, local payment proofs and IST output. Receiver-authenticated sync/settlement and unused-fund release are now implemented. Reliable Kafka notifications and Redis request limits are included. Actual phone exchange, dispute adjudication and infrastructure scaling remain later work.
+A Java backend portfolio project by **Risheesh Pandey**, implementing virtual-money wallets, retry-safe online transfers and signed offline payment proofs that settle when connectivity returns.
 
-**Current status:** milestone 4: transactional outbox, Kafka, idempotent notification inbox, retries/DLT, Redis request limits and optional resilient webhook delivery; includes milestone 3 core: transactional offline sync/settlement, durable retry/conflict checks and deadline-gated release; milestone 1 remains included. Java 21 + Spring Boot 3.5.16 + PostgreSQL + Flyway + Spring Security + JWT + BCrypt + Spring Data JPA/Hibernate + Lombok + JUnit + Testcontainers + Docker Compose + GitHub Actions.
+**Current implementation: Milestone 6.** Financial operations stay in a transactional core; notifications run as a separate service and database. Spring Cloud Gateway routes through Eureka, and OpenFeign validates notification access with core. Kafka transactional-outbox delivery, Redis request protection, structured logs and Micrometer metrics support testing and diagnosis. Phone-to-phone transport and automatic mobile sync remain planned work.
+
+- **Financial correctness:** integer paise amounts, balanced journal entries, transaction boundaries, deterministic wallet locking and durable idempotency with changed-payload rejection.
+- **Offline protocol:** device registration, Ed25519-signed allowances and proofs, reserved funds, receiver-authenticated settlement, duplicate/conflict checks and deadline-gated unused-fund release.
+- **Authentication:** JWT access tokens, rotating HttpOnly refresh cookies, CSRF protection, BCrypt passwords and ownership checks.
+- **Asynchronous delivery:** Kafka, an outbox, idempotent notification inbox, retries and dead-letter storage. Real SMS/push requires a provider adapter.
+- **Verification:** [184 Java unit/integration tests passed](docs/ci-validation.md), with no failures or skipped tests. A separate hosted workflow measures capacity and reconciles the resulting financial and notification records.
+
+**Stack:** Java 21, Spring Boot 3.5.16, Spring Security, Spring Data JPA/Hibernate, Lombok, PostgreSQL/Flyway, Kafka, Redis, Spring Cloud Gateway, Eureka, OpenFeign, Micrometer, Docker Compose, JUnit/Mockito, Testcontainers and GitHub Actions.
+
+## Run and inspect
+
+- [Current startup, management ports and observability](docs/milestone-6.md)
+- [Disposable GitHub Actions capacity test and measurement rules](docs/github-capacity-test.md)
+- [Actual local stress observations and limitations](docs/m6-manual-stress-results.md)
+- [Hosted baseline: measured outbox bottleneck](docs/capacity-baseline.md)
+- [Hosted CI validation evidence](docs/ci-validation.md)
+- [Learning guide: concepts and code](docs/OfflinePay_Skills_and_Code_Guide.pdf)
+
+Build all services with `mvn -f services/pom.xml package`. Local service ports are Gateway9030, core9031, notifications9032 and Eureka8762. The CI capacity workflow uses its own disposable infrastructure and ephemeral ports; it does not access laptop data or private keys.
+
+The earlier milestone labs below document how the project evolved. Existing data, keys and personal code comments should be preserved when applying an upgrade.
 
 ## Why start here?
 
-Balance movement, retry safety and journal correctness must work before adding disconnected devices or service boundaries. Auth and wallet packages currently run in one application. Spring Data JPA repositories and Hibernate map the existing tables to annotated entities. Lombok supplies getters, builders and constructor injection. Microservices remain a later milestone.
+Balance movement, retry safety and journal correctness form the foundation for disconnected payments. Auth and financial writes remain in one core application so their database transactions stay local. Notifications have a separate service and database. Annotated JPA entities/repositories, Hibernate dirty checking and Lombok keep the application code readable.
 
-## Start here for Milestone 4
+## Milestone 4 reference
 
 Read [the Milestone 4 upgrade and failure lab](docs/milestone-4.md). Start PostgreSQL, the separate OfflinePay Kafka (9094) and Redis (6381). Flyway adds V7 without rewriting old migrations/data/keys. Notifications appear for NEW committed operations, not historical retries. In-app delivery works by default; real SMS/push requires an external provider adapter. [Targeted operator recovery](docs/milestone-4-recovery.sql) is intentionally not a public API.
 
