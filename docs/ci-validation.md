@@ -18,3 +18,5 @@ Evidence: [push validation run](https://github.com/risheeshpandey/Offlinepay/act
 The capacity workflow additionally validates 20 Python policy/selection checks, 4 real-k6 summary checks and 2 real-k6/mock-HTTP wiring cases before starting the disposable full stack. Mock HTTP timings are never capacity evidence. See [capacity methodology](github-capacity-test.md) and the measured-capacity run artifacts for performance results.
 
 The same checks also passed on the polling-configuration commit `a1f05d4087603859bff334af434e5226bf6d664f`: [push run](https://github.com/risheeshpandey/Offlinepay/actions/runs/39766611922) and [PR run](https://github.com/risheeshpandey/Offlinepay/actions/runs/39766617264). No Java financial implementation changed in that commit.
+
+The extended-search commit `103cb588dbc55c8ada5f571dde0a7cb0daf1ef42` also passed [hosted Java CI](https://github.com/risheeshpandey/Offlinepay/actions/runs/39769439778): the same 184 cases, zero failures/errors/skips, plus both smoke checks. Increasing a benchmark VU bound did not change the Java implementation.

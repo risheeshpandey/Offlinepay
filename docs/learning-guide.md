@@ -147,3 +147,10 @@ Detailed manual lab: milestone-3.md. V5 walkthrough remains deferred. Rejected s
 ## M6 additions
 
 Read `milestone-6.md` and the updated cumulative PDF for metric counters versus balances, commit-only telemetry, histograms/p95, W3C trace propagation, durable-outbox trace boundaries, IST JSON logs, Prometheus alerts, optional ELK, automated k6 traffic, reconciliation and Kubernetes/HPA prerequisites. `milestone-6-report.md` separates authoring checks from user-machine PostgreSQL evidence. `m6-load-results.md` records successful1/5/10-VU local runs and SQL reconciliation; at10 VUs about163 mixed requests/s and333ms transfer p95, with zero request failures. API rate is separate from background queue drain. Maximum capacity, sustained notification throughput and deployment runtime scaling remain unmeasured. M4-M6 code walkthrough follows M6 testing in the same evolving codebase.
+
+
+## Hosted CI and capacity evidence
+
+The cumulative PDF now includes a hosted-testing appendix: GitHub Actions, disposable Docker infrastructure, the k6 business-time window, unchanged latency/error rules, financial and notification reconciliation, and the outbox batch/poll bottleneck. Each concept maps to its implementation file. [Current measured results](capacity-results.md) distinguish throughput, virtual users and post-traffic notification drain. [Java CI evidence](ci-validation.md) records 184 passing Java tests.
+
+The PDF builder reads `benchmarks/evidence/latest.json`, which points to a retained real report and workflow URL. Rebuild with `python scripts/build_learning_guide.py` (ReportLab is a documentation dependency). Earlier local observations stay in their historical chapters; use the hosted appendix and result document for the current hosted measurement. A configured VU ceiling is not a measured maximum.

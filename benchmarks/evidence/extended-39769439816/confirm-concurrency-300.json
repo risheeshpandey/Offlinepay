@@ -1,0 +1,357 @@
+{
+  "root_group": {
+    "id": "d41d8cd98f00b204e9800998ecf8427e",
+    "groups": [
+      {
+        "groups": [],
+        "checks": [
+          {
+            "passes": 4,
+            "fails": 0,
+            "name": "csrf",
+            "path": "::setup::csrf",
+            "id": "33c6bf9cd09cc9ce2fcc45e761657699"
+          },
+          {
+            "id": "d15f31f2173c9a2035df3f57fae23482",
+            "passes": 2,
+            "fails": 0,
+            "name": "signup",
+            "path": "::setup::signup"
+          },
+          {
+            "path": "::setup::login",
+            "id": "47c33b67d68458588602f736ee912f11",
+            "passes": 2,
+            "fails": 0,
+            "name": "login"
+          },
+          {
+            "name": "topup",
+            "path": "::setup::topup",
+            "id": "7be33a36076cd8e97baba4286a7cf20d",
+            "passes": 1,
+            "fails": 0
+          }
+        ],
+        "name": "setup",
+        "path": "::setup",
+        "id": "5c0f8025f7e0b6654089e5b00e950f1a"
+      }
+    ],
+    "checks": [
+      {
+        "fails": 0,
+        "name": "business request accepted",
+        "path": "::business request accepted",
+        "id": "cc8e0079fdc980a1ecf1e74ac409f1db",
+        "passes": 136156
+      }
+    ],
+    "name": "",
+    "path": ""
+  },
+  "state": {
+    "testRunDurationMs": 181703.464546,
+    "isStdOutTTY": false,
+    "isStdErrTTY": false
+  },
+  "metrics": {
+    "vus": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 300,
+        "min": 0,
+        "max": 300
+      }
+    },
+    "vus_max": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "min": 300,
+        "max": 300,
+        "value": 300
+      }
+    },
+    "business_requests": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 136156,
+        "rate": 749.3307865108471
+      }
+    },
+    "checks": {
+      "values": {
+        "rate": 1,
+        "passes": 136165,
+        "fails": 0
+      },
+      "type": "rate",
+      "contains": "default"
+    },
+    "http_req_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 1938.387304,
+        "min": 1.892279,
+        "avg": 396.7590686950671,
+        "med": 379.704852,
+        "p(95)": 690.2502368,
+        "p(99)": 907.0499750799987
+      }
+    },
+    "business_failures": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0,
+        "passes": 0,
+        "fails": 136156
+      },
+      "thresholds": {
+        "rate<0.01": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_connecting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "min": 0,
+        "avg": 0.026496598479785544,
+        "med": 0,
+        "p(95)": 0,
+        "p(99)": 0,
+        "max": 44.606903
+      }
+    },
+    "http_req_waiting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "min": 1.758388,
+        "avg": 395.9961274841862,
+        "med": 379.221915,
+        "p(95)": 689.5612063999998,
+        "p(99)": 906.410035359999,
+        "max": 1938.333843
+      }
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 69720639,
+        "rate": 383705.6116359826
+      }
+    },
+    "server_errors": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 0,
+        "rate": 0
+      }
+    },
+    "http_req_blocked": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(99)": 0.0805864799999966,
+        "max": 65.997898,
+        "min": 0.001063,
+        "avg": 0.03487966760180614,
+        "med": 0.003628,
+        "p(95)": 0.006067799999999988
+      }
+    },
+    "http_req_tls_handshaking": {
+      "values": {
+        "med": 0,
+        "p(95)": 0,
+        "p(99)": 0,
+        "max": 0,
+        "min": 0,
+        "avg": 0
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "business_finished_epoch_ms": {
+      "contains": "default",
+      "values": {
+        "min": 1792669143624,
+        "avg": 1792669233401.7126,
+        "med": 1792669233752.5,
+        "p(95)": 1792669314766.25,
+        "p(99)": 1792669321774.9,
+        "max": 1792669324006
+      },
+      "type": "trend"
+    },
+    "http_reqs": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 136165,
+        "rate": 749.3803177623424
+      }
+    },
+    "http_req_sending": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "min": 0.004511,
+        "avg": 0.0389542464289648,
+        "med": 0.013188,
+        "p(95)": 0.0634073999999998,
+        "p(99)": 0.37896127999999024,
+        "max": 46.529073
+      }
+    },
+    "data_received": {
+      "values": {
+        "count": 83470630,
+        "rate": 459378.3074448127
+      },
+      "type": "counter",
+      "contains": "data"
+    },
+    "iteration_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 1938.796116,
+        "min": 5.941241,
+        "avg": 397.09467765021583,
+        "med": 379.9914885,
+        "p(95)": 690.57315475,
+        "p(99)": 907.3635186000007
+      }
+    },
+    "transfers_accepted": {
+      "values": {
+        "count": 40536,
+        "rate": 223.08875673494887
+      },
+      "type": "counter",
+      "contains": "default"
+    },
+    "transfer_ms": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 411.140056,
+        "p(95)": 744.7268055,
+        "p(99)": 953.0528456500014,
+        "max": 1938.387304,
+        "min": 14.012022,
+        "avg": 434.1625926225379
+      },
+      "thresholds": {
+        "p(95)<2000": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_duration{expected_response:true}": {
+      "contains": "time",
+      "values": {
+        "min": 1.892279,
+        "avg": 396.7590686950671,
+        "med": 379.704852,
+        "p(95)": 690.2502368,
+        "p(99)": 907.0499750799987,
+        "max": 1938.387304
+      },
+      "type": "trend"
+    },
+    "rate_limited": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 0,
+        "rate": 0
+      }
+    },
+    "iterations": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 136156,
+        "rate": 749.3307865108471
+      }
+    },
+    "http_req_failed": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0,
+        "passes": 0,
+        "fails": 136165
+      },
+      "thresholds": {
+        "rate<0.01": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_receiving": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 134.968793,
+        "min": 0.012807,
+        "avg": 0.7239869644622158,
+        "med": 0.217399,
+        "p(95)": 2.0046551999999944,
+        "p(99)": 9.324364479999968
+      }
+    },
+    "business_started_epoch_ms": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "max": 1792669323494,
+        "min": 1792669143497,
+        "avg": 1792669233004.6338,
+        "med": 1792669233396.5,
+        "p(95)": 1792669314329.75,
+        "p(99)": 1792669321400
+      }
+    },
+    "wallet_read_ms": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(99)": 880.46434688,
+        "max": 1878.205307,
+        "min": 5.779804,
+        "avg": 380.92755430966383,
+        "med": 365.48427649999996,
+        "p(95)": 659.5976632500001
+      },
+      "thresholds": {
+        "p(95)<1000": {
+          "ok": true
+        }
+      }
+    }
+  },
+  "offlinepayMetadata": {
+    "runId": "confirm-concurrency-300-b33160eb14",
+    "vus": 300,
+    "duration": "180s",
+    "executor": "constant-vus",
+    "walletPairs": 1,
+    "workload": "Approximately 70% wallet reads / 30% fresh INR1 transfers, one shared sender",
+    "completedBusinessRpsExcludingSetup": 754.2892598153002,
+    "businessWindowSeconds": 180.509,
+    "maximumCapacityClaim": false
+  }
+}

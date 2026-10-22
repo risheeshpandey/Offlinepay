@@ -6,6 +6,7 @@ Documentation dependency: pip install reportlab
 from pathlib import Path
 from xml.sax.saxutils import escape
 import textwrap
+import json
 import os
 import time
 os.environ["TZ"] = "Asia/Kolkata"
@@ -73,7 +74,7 @@ p('<b>A transfer must move money once, keep total money unchanged, and leave a b
 table([['Action','Alice','Bob','Journal effect'],['Demo funding INR 1,000','1,000','0','System debit + Alice credit'],['Transfer INR 250','750','250','Alice debit + Bob credit'],['Retry same transfer key','750','250','Return existing payment; no new entries']], [175,65,65,200])
 h('Read and run')
 p('Follow README steps 1-3. Read AuthController, AuthService, SecurityConfig, WalletController, WalletService, Money, then Flyway migrations. Use the manual Postman lab in docs/milestone-2-part-2.md and inspect database reconciliation queries.')
-p('Available/reserved balances, rotating refresh sessions and logs are implemented. Part 2 adds device keys, signed allowances and local proofs; M3 adds settlement/deadline-gated release; M4 adds Kafka/outbox, notifications and Redis protection. M6 now includes measured local PostgreSQL throughput and SQL reconciliation; maximum capacity and phone exchange remain future work. No bank integration or real-money settlement is present.', True)
+p('Available/reserved balances, rotating refresh sessions and logs are implemented. Part 2 adds device keys, signed allowances and local proofs; M3 adds settlement/deadline-gated release; M4 adds Kafka/outbox, notifications and Redis protection. M6 includes measured local and hosted PostgreSQL throughput, GitHub CI and SQL reconciliation. The final hosted appendix gives current measurements and their limits; phone exchange remains future work. No bank integration or real-money settlement is present.', True)
 
 page(2,'Implemented skills: code map')
 table([['Skill / concept','Exact implementation to read'],
@@ -643,7 +644,7 @@ p('A fresh Alice has INR100 and Bob0. Two concurrent identical INR1 payment requ
 h('Whole-run invariants')
 p('Require zero negative balances, zero unbalanced operations, zero duplicate actor/key groups and zero duplicate event/user notices. The total available+reserved wallet money equals virtual demo issuance. After the outbox and Kafka consumer drain, consumed-event count equals committed operation count, and notices equal distinct participants per operation. A topup has one participant; a transfer normally has two.')
 h('Fast API, growing queue is not sustained delivery capacity')
-p('The current relay polls at most20 rows every2s. A transfer burst can commit faster than notices are produced. Record queue growth and drain time separately from API p95. FAILED rows/DLT need review; do not silently exclude them to make the report look successful. Both core and notification SQL files are read-only checks on isolated load databases.')
+p('The default relay polls at most20 rows with a2s delay between batches; the hosted experiment selects100ms explicitly. A transfer burst can commit faster than notices are produced. Record queue growth and drain time separately from API p95. FAILED rows/DLT need review; do not silently exclude them to make the report look successful. Both core and notification SQL files are read-only checks on isolated load databases.')
 p('PostgreSQL EXPLAIN ANALYZE/BUFFERS queries are supplied for wallet/inbox lookups. Plans and tuning remain pending on realistic PostgreSQL data; no unsupported index-performance claim is made.', True)
 
 page(59,'Kubernetes and CPU autoscaling prerequisites')
@@ -657,13 +658,13 @@ p('deploy/kubernetes/apps.yml contains13 schema-validated resources. It requires
 p('No Kubernetes/HPA runtime acceptance or production-availability claim has been made. Read deploy/kubernetes/README.md before applying; do not start a cluster alongside the current8GB stack.', True)
 
 page(60,'Verified evidence and what remains')
-table([['Executed','Result'],['Surefire across core/notifications/gateway','100 tests; zero failures/errors/skips'],['Actual four-JAR metrics/tracing smoke','PASS; H2 + real Redis, Eureka, HTTP/Feign'],['k6 functional smoke and replay','59 business requests; no business errors; concurrent retry identity verified'],['Management behavior','Private metrics; Redis failure readiness503/liveness200'],['Prometheus/Kubernetes static checks','5 valid rules;13 valid resources']], [265,240])
+table([['Executed','Result'],['Earlier authoring unit run','100 tests; zero failures/errors/skips'],['Actual four-JAR metrics/tracing smoke','PASS; H2 + real Redis, Eureka, HTTP/Feign'],['k6 functional smoke and replay','59 business requests; no business errors; concurrent retry identity verified'],['Management behavior','Private metrics; Redis failure readiness503/liveness200'],['Prometheus/Kubernetes static checks','5 valid rules;13 valid resources']], [265,240])
 h('User PostgreSQL checks now pass')
 p('On the user Windows/Java 21 laptop, 1/5/10-VU runs of 30 active seconds passed their thresholds and both databases reconciled after drain. At 10 VUs: 163.10 mixed requests/s, 333.32 ms transfer p95, zero request failures. Pages 61-62 give the actual scope. This is achieved local throughput, not maximum capacity.')
 h('Runtime checks still separate')
-p('Authoring-host Docker integration suites could not initialize; its successful 100-test run used a Java 17 override. User PostgreSQL acceptance does not rerun those suites. ELK/Zipkin Docker startup, container builds and Kubernetes/HPA scaling remain pending. M4-M6 code walkthrough follows testing in the same project.')
+p('The earlier authoring-host 100-test run used a Java 17 override without Docker integration. Hosted Java 21 CI has since passed all 184 unit/integration cases, including PostgreSQL and Redis suites, plus discovery and observability smoke checks. See docs/ci-validation.md and the hosted appendix. Kubernetes/HPA runtime scaling remains unmeasured; deployment manifests are not evidence of actual scaling.')
 h('M7 and accepted backlog remain visible')
-p('Android Kotlin/Room/Keystore, QR exchange then BLE/NFC, durable proof queue and automatic network sync remain ahead. Longer sync window duration is undecided; signed syncDeadline needs a compatible protocol update. Sender OR receiver submission,12-hour local reminder and status updates remain accepted follow-ups. No INR100 fine and no early release just because the server has not seen a proof. GitHub publication remains for a later explicit step.')
+p('Android Kotlin/Room/Keystore, QR exchange then BLE/NFC, durable proof queue and automatic network sync remain ahead. Longer sync window duration is undecided; signed syncDeadline needs a compatible protocol update. Sender OR receiver submission,12-hour local reminder and status updates remain accepted follow-ups. No INR100 fine and no early release just because the server has not seen a proof. The source and measured hosted evidence are now published in github.com/risheeshpandey/Offlinepay.')
 
 page(61,'Measured PostgreSQL load results')
 p('Source: user-provided k6 v1.3.0 JSON and SQL outputs, 22 October 2026 IST. Windows, Java 21.0.11, PostgreSQL 17.6, Kafka 3.9.1, Redis 7.4.11. All services and k6 share the 8 GB laptop. These runs were executed by the user with guided commands.')
@@ -685,6 +686,77 @@ source('benchmarks/mixed.js','export function handleSummary',7)
 p('The first exporter serialized the entire k6 object, including setup_data with ATs. The corrected exporter includes only checks, state, metrics and generated metadata. Three real-k6 regression checks verify omitted secret fields, preserved results and unmodified input. Never copy the original tokens into evidence or Git.', True)
 h('A defensible CV measurement')
 p('Load-tested a Spring Boot/PostgreSQL wallet backend at 10 virtual users: about 163 requests/sec on a 70% read / 30% transfer workload, 333 ms transfer p95 and zero request failures in a 30-second local run. This does not establish maximum capacity or production scale.', True)
+
+
+# The committed evidence index selects the actual report used by this appendix.
+# It contains no tokens; reports are exported through the runner allowlist.
+index_path = ROOT / 'benchmarks/evidence/latest.json'
+if index_path.exists():
+    evidence = json.loads(index_path.read_text())
+    measured = json.loads((ROOT / evidence['reportPath']).read_text())
+    if measured['status'] != 'CONFIRMED_OBSERVATION':
+        raise ValueError('The guide evidence index must select a confirmed observation')
+    confirmed = {stage['name']: stage for stage in (measured.get('confirmation'),
+                 measured.get('concurrencyConfirmation')) if stage and stage['passed']}
+    throughput = max(confirmed.values(), key=lambda stage: stage['observedBusinessRps'])
+    concurrency = max(confirmed.values(), key=lambda stage: stage['vus'])
+    def fmt(value, digits=2):
+        return f'{value:,.{digits}f}' if isinstance(value, (int, float)) else 'not available'
+
+    page(63, 'Hosted testing: skills and code map')
+    p('The GitHub workflow starts a disposable Linux stack, measures real requests through Gateway, and checks the resulting PostgreSQL records. It does not connect to the Windows laptop or its normal demo database. The source, workflow and retained reports are versioned together.')
+    table([['Skill', 'Implementation and purpose'],
+      ['GitHub Actions / Java CI', '.github/workflows/ci.yml: 184 Java unit/integration cases plus Eureka/Feign and metrics/tracing smoke checks.'],
+      ['Disposable infrastructure', 'compose.capacity.yaml and CapacityRun.start: unique Compose project, fresh databases, generated secrets and ephemeral loopback ports.'],
+      ['Automated traffic', 'benchmarks/mixed.js: 7 reads / 3 fresh transfers per ten iterations, one sender; ci-mixed.js records the business interval.'],
+      ['Pass/fail policy', 'scripts/run_capacity_ci.py api_result: require native k6 success, full duration and the original numeric SLOs.'],
+      ['Financial checks', 'benchmarks/capacity-core.sql: balanced operations, conserved issuance, per-wallet journal agreement and unique keys.'],
+      ['Eventual delivery checks', 'capacity-notifications.sql and wait_delivery: every event consumed, expected notices present, no duplicates or open DLT.'],
+      ['Regression and privacy tests', 'test_capacity_ci.py and ci-summary-test.js: failed/short runs cannot pass; setup_data and access tokens are excluded.']], [165,340])
+    h('A concrete example')
+    p('An INR 1 transfer needs one committed operation, a debit and credit, one outbox event, and two participant notifications. A retry with the same key must return that existing operation. Fast HTTP responses alone cannot prove these records agree.')
+    p('Thresholds remain HTTP/business failures below 1%, wallet-read p95 below 1000ms and transfer p95 below 2000ms. Eventual delivery and SQL reconciliation must also pass. A failed search stage stays visible and no higher stage is started.', True)
+
+    page(64, 'Confirmed hosted measurement')
+    p('Report status: <b>' + escape(measured['status']) + '</b>. Measurements below are actual fixed-VU confirmations, not configured targets. API traffic, four JVMs, PostgreSQL, Kafka, Redis and k6 share one runner.')
+    rows = [['Measurement', 'Best confirmed throughput', 'Highest confirmed VUs']]
+    for label, key, digits in [('Virtual users','vus',0),('Business seconds','businessWindowSeconds',2),
+       ('Mixed requests/s','observedBusinessRps',2),('Completed requests','completedRequests',0),
+       ('Accepted transfers','acceptedTransfers',0),('Read p95, ms','walletReadP95Ms',2),
+       ('Transfer p95, ms','transferP95Ms',2),('Transfer p99, ms','transferP99Ms',2),
+       ('Post-traffic drain, s','deliveryDrainSeconds',2)]:
+        rows.append([label, fmt((throughput or {}).get(key),digits), fmt((concurrency or {}).get(key),digits)])
+    def failure_label(stage):
+        if not stage: return 'not available'
+        return fmt(100*stage['httpFailureRate'],4) + '% / ' + fmt(100*stage['businessFailureRate'],4) + '%'
+    rows.append(['HTTP / business failures', failure_label(throughput), failure_label(concurrency)])
+    def transfer_rate(stage):
+        return fmt(stage['acceptedTransfers']/stage['businessWindowSeconds']) if stage else 'not available'
+    rows.append(['Accepted transfers/s', transfer_rate(throughput), transfer_rate(concurrency)])
+    table(rows,[165,170,170])
+    if throughput and concurrency and throughput['name'] == concurrency['name']:
+        p('Both columns refer to the same confirmation run. Do not add their request, transfer or notification counts together.', True)
+    hardware=measured['hardware']
+    p('<b>Deployment:</b> ' + str(hardware['affinityCpus']) + ' assigned CPUs; ' + fmt(hardware['initialMemory']['memoryLimitMiB'],0) + 'MiB RAM; Java 21; HTTP over loopback through Gateway. Core/notification pools 10/3; outbox batch 20 and poll ' + str(measured.get('outboxPollMs',2000)) + 'ms. Test-only Redis budgets stay enabled. About 70% reads / 30% INR 1 online transfers share one sender wallet.')
+    failed_searches = [stage for stage in measured['stages'] if stage.get('kind') == 'search' and not stage['passed']]
+    if failed_searches:
+        failed = failed_searches[0]
+        p('<b>Tested boundary:</b> first failing search level ' + str(failed['vus']) + ' VUs; read p95 ' + fmt(failed.get('walletReadP95Ms')) + 'ms and transfer p95 ' + fmt(failed.get('transferP95Ms')) + 'ms. The failure remains in the report. Untested intermediate VU counts are not an exact maximum.', True)
+    elif measured.get('searchCeilingReached'):
+        p('All configured search levels passed. The configured ceiling was reached; higher levels remain untested.', True)
+    h('What this proves')
+    p('The reported confirmation passed its API rules and financial/eventual-delivery checks. Notification queues can grow during traffic and clear afterward; drain time is not part of API latency. This does not prove continuous notification throughput at the API request rate, phone-to-phone delivery, multiple backend replicas, or a universal maximum.')
+    p('<b>Evidence:</b> ' + escape(evidence['workflowUrl']) + '<br/>Retained report: ' + escape(evidence['reportPath']), True)
+
+    page(65, 'Find the outbox bottleneck in code')
+    source(main+'messaging/OutboxTransactions.java', 'public List<UUID> ready()', 2)
+    source(main+'messaging/OutboxRelay.java', '@Scheduled', 14)
+    h('Batch size and polling delay are separate controls')
+    p('ready() selects at most 20 rows. poll() claims, publishes and finishes them one at a time. With the default 2000ms delay after each batch, even instant work cannot exceed 10 events/s for one worker. Actual database and Kafka work lowers that rate further. Faster payment commits therefore create a growing queue.')
+    h('Measured diagnosis, recorded change')
+    p('The first hosted run passed API/financial checks but failed notification drain. A separate deployment selected --offlinepay.messaging.poll-ms=100 while keeping batch 20, the financial code, error/latency rules and 600s drain budget. In the initial tuned run, its 200-VU/180s confirmation passed and the queue cleared after 285.12s. The latest higher-range measurements are on page 64. Different runner CPU models and warmup conditions mean this is not a precise causal API-speedup comparison.')
+    h('Highest observed is not an unconditional maximum')
+    p('The runner stops after a failed search stage and selects throughput and concurrency candidates separately. Each selected VU count needs a longer passing confirmation. A prior backlog must clear before confirmation. Read docs/capacity-results.md for the tested boundary, every failure and the actual hardware; VUs, mixed RPS and payment transfers/s answer different questions.')
 
 def footer(canvas, doc):
     canvas.saveState(); w,h=A4

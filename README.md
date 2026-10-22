@@ -12,12 +12,20 @@ A Java backend portfolio project by **Risheesh Pandey**, implementing virtual-mo
 
 **Stack:** Java 21, Spring Boot 3.5.16, Spring Security, Spring Data JPA/Hibernate, Lombok, PostgreSQL/Flyway, Kafka, Redis, Spring Cloud Gateway, Eureka, OpenFeign, Micrometer, Docker Compose, JUnit/Mockito, Testcontainers and GitHub Actions.
 
+## Measured hosted performance
+
+A real GitHub Actions run confirmed **300 concurrent virtual users**, **754 mixed requests/sec**, **0% HTTP/business failures** and **745ms transfer p95** during a 180-second test. The next tested level, 500 VUs, exceeded the wallet-read p95 rule (1101ms versus 1000ms).
+
+This is a 4-vCPU/approximately 16GiB deployment, approximately 70% wallet reads/30% new INR 1 online transfers, one shared sender, with 100ms outbox polling and enabled test-only Redis budgets. The 300-VU confirmation accepted 40,536 transfers; notification delivery completed during 320.25 seconds of post-traffic drain. It is not sustained real-time notification throughput or an unconditional maximum.
+
+Across the full suite, 120,038 operations and 240,065 in-app notifications reconciled with zero ledger imbalances or duplicate notices. [Exact results, retained JSON and failed 500-VU evidence](docs/capacity-results.md) and [copy-ready CV points and demonstrated skills](docs/resume-notes.md) provide the measurement scope.
+
 ## Run and inspect
 
 - [Current startup, management ports and observability](docs/milestone-6.md)
 - [Disposable GitHub Actions capacity test and measurement rules](docs/github-capacity-test.md)
 - [Actual local stress observations and limitations](docs/m6-manual-stress-results.md)
-- [Hosted measured capacity:200 VUs confirmed; higher search in progress](docs/capacity-results.md)
+- [Hosted capacity results and tested boundary](docs/capacity-results.md)
 - [Hosted baseline: measured outbox bottleneck](docs/capacity-baseline.md)
 - [Hosted CI validation evidence](docs/ci-validation.md)
 - [Learning guide: concepts and code](docs/OfflinePay_Skills_and_Code_Guide.pdf)

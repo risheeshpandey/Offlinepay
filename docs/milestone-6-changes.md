@@ -19,6 +19,15 @@ A	benchmarks/capacity-summary-test.js
 A	benchmarks/capacity.js
 A	benchmarks/ci-mixed.js
 A	benchmarks/ci-summary-test.js
+A	benchmarks/evidence/baseline-39761172032/report.json
+A	benchmarks/evidence/extended-39769439816/confirm-concurrency-300.json
+A	benchmarks/evidence/extended-39769439816/confirm-throughput-200.json
+A	benchmarks/evidence/extended-39769439816/report.json
+A	benchmarks/evidence/extended-39769439816/search-500.json
+A	benchmarks/evidence/extended-39769439816/stages.csv
+A	benchmarks/evidence/latest.json
+A	benchmarks/evidence/tuned-39766611980/confirm-throughput-200.json
+A	benchmarks/evidence/tuned-39766611980/report.json
 A	benchmarks/explain.sql
 A	benchmarks/mixed.js
 A	benchmarks/reconcile-core.sql
@@ -34,6 +43,9 @@ A	deploy/kubernetes/README.md
 A	deploy/kubernetes/apps.yml
 M	docs/OfflinePay_Skills_and_Code_Guide.pdf
 A	docs/capacity-automation.md
+A	docs/capacity-baseline.md
+A	docs/capacity-results.md
+A	docs/ci-validation.md
 A	docs/github-capacity-test.md
 M	docs/learning-guide.md
 A	docs/m6-automated-load-analysis.md
@@ -46,6 +58,7 @@ A	docs/m6-manual-stress-results.md
 A	docs/milestone-6-changes.md
 A	docs/milestone-6-report.md
 A	docs/milestone-6.md
+A	docs/resume-notes.md
 A	docs/target-rate-test.md
 M	docs/verification.md
 A	observability/alerts.yml
