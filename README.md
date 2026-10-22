@@ -17,6 +17,7 @@ A Java backend portfolio project by **Risheesh Pandey**, implementing virtual-mo
 - [Current startup, management ports and observability](docs/milestone-6.md)
 - [Disposable GitHub Actions capacity test and measurement rules](docs/github-capacity-test.md)
 - [Actual local stress observations and limitations](docs/m6-manual-stress-results.md)
+- [Hosted measured capacity:200 VUs confirmed; higher search in progress](docs/capacity-results.md)
 - [Hosted baseline: measured outbox bottleneck](docs/capacity-baseline.md)
 - [Hosted CI validation evidence](docs/ci-validation.md)
 - [Learning guide: concepts and code](docs/OfflinePay_Skills_and_Code_Guide.pdf)

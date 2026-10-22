@@ -509,7 +509,7 @@ class CapacityRun:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, default=ROOT/'target/capacity-report')
-    parser.add_argument('--levels', default='10,25,50,100,200')
+    parser.add_argument('--levels', default='10,25,50,100,200,300,500,1000')
     parser.add_argument('--seconds', type=int, default=30)
     parser.add_argument('--confirm-seconds', type=int, default=180)
     parser.add_argument('--drain-seconds', type=int, default=600)
@@ -519,7 +519,7 @@ def main():
     args = parser.parse_args()
     args.levels = [int(v) for v in args.levels.split(',')]
     if not (1 <= len(args.levels) <= 8 and args.levels == sorted(set(args.levels))
-            and all(1 <= n <= 300 for n in args.levels) and 10 <= args.seconds <= 120
+            and all(1 <= n <= 1000 for n in args.levels) and 10 <= args.seconds <= 120
             and 60 <= args.confirm_seconds <= 300 and 30 <= args.drain_seconds <= 900
             and 50 <= args.outbox_poll_ms <= 5000):
         parser.error('Invalid bounded stage settings')

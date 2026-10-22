@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       levels:
-        description: 'Ascending VU levels (1..300, at most 8 levels)'
-        default: '10,25,50,100,200'
+        description: 'Ascending VU levels (1..1000, at most 8 levels)'
+        default: '10,25,50,100,200,300,500,1000'
         required: true
         type: string
       seconds:
@@ -90,7 +90,7 @@ jobs:
       - name: Measure isolated mixed-workload stages
         shell: bash
         env:
-          CAPACITY_LEVELS: ${{ inputs.levels || '10,25,50,100,200' }}
+          CAPACITY_LEVELS: ${{ inputs.levels || '10,25,50,100,200,300,500,1000' }}
           CAPACITY_SECONDS: ${{ inputs.seconds || '30' }}
           CAPACITY_CONFIRM_SECONDS: ${{ inputs.confirmation_seconds || '180' }}
           CAPACITY_OUTBOX_POLL_MS: ${{ inputs.outbox_poll_ms || '100' }}

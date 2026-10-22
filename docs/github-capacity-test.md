@@ -11,7 +11,7 @@ For a new repository, initialize it with a README so it has a default branch. Th
 Two entry points:
 
 1. Push the capacity files to branch `capacity-testing`; the path-filtered workflow starts once for that push.
-2. Once the workflow is on the default branch, use **Actions → OfflinePay measured capacity → Run workflow**. Default inputs are `10,25,50,100,200` VUs, `30` seconds per short stage and `180` seconds for confirmation, with recorded outbox polling of `100`ms. Input strings are passed through environment variables, quoted and validated; they are not interpolated as executable shell code.
+2. Once the workflow is on the default branch, use **Actions → OfflinePay measured capacity → Run workflow**. Default inputs are `10,25,50,100,200,300,500,1000` VUs, `30` seconds per short stage and `180` seconds for confirmation, with recorded outbox polling of `100`ms. Input strings are passed through environment variables, quoted and validated; they are not interpolated as executable shell code.
 
 Standard public-repository Ubuntu runners currently provide 4 vCPUs and 16 GB RAM; private repository limits/billing differ. Record the actual run's hardware rather than assuming it matches this description. The workflow uses `ubuntu-24.04` and a 90-minute job ceiling; the measurement process has a 70-minute external ceiling. Default tests normally stop earlier, but queue drain and image/build downloads can take time. A timeout or incomplete confirmation is not a passing result.
 
@@ -56,3 +56,5 @@ The runner now explicitly selects100ms polling for a new, separately recorded de
 Authoring checks include20 Python policy/selection tests,4 real-k6 summary checks and2 real-k6/mock-HTTP wiring cases. Mock timings are not performance evidence. The current authoring environment cannot host the full Docker stack; performance measurements execute in GitHub Actions.
 
 References: [GitHub-hosted runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners), [workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax), [workflow artifacts](https://docs.github.com/en/actions/tutorials/store-and-share-data), [k6 custom summaries](https://grafana.com/docs/k6/latest/results-output/end-of-test/custom-summary/).
+
+The initial tuned run passed the200-VU search ceiling and its180-second confirmation. The bounded search was therefore extended up to1000 VUs, still stopping at the first failing stage, with the same SLOs, financial checks and memory guards. This increases the tested range; it is not evidence that1000 VUs pass. See [measured results](capacity-results.md).

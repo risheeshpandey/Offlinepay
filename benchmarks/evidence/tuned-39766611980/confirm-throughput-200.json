@@ -1,0 +1,357 @@
+{
+  "root_group": {
+    "id": "d41d8cd98f00b204e9800998ecf8427e",
+    "groups": [
+      {
+        "name": "setup",
+        "path": "::setup",
+        "id": "5c0f8025f7e0b6654089e5b00e950f1a",
+        "groups": [],
+        "checks": [
+          {
+            "id": "33c6bf9cd09cc9ce2fcc45e761657699",
+            "passes": 4,
+            "fails": 0,
+            "name": "csrf",
+            "path": "::setup::csrf"
+          },
+          {
+            "path": "::setup::signup",
+            "id": "d15f31f2173c9a2035df3f57fae23482",
+            "passes": 2,
+            "fails": 0,
+            "name": "signup"
+          },
+          {
+            "name": "login",
+            "path": "::setup::login",
+            "id": "47c33b67d68458588602f736ee912f11",
+            "passes": 2,
+            "fails": 0
+          },
+          {
+            "name": "topup",
+            "path": "::setup::topup",
+            "id": "7be33a36076cd8e97baba4286a7cf20d",
+            "passes": 1,
+            "fails": 0
+          }
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "fails": 0,
+        "name": "business request accepted",
+        "path": "::business request accepted",
+        "id": "cc8e0079fdc980a1ecf1e74ac409f1db",
+        "passes": 114539
+      }
+    ],
+    "name": "",
+    "path": ""
+  },
+  "state": {
+    "isStdErrTTY": false,
+    "testRunDurationMs": 181535.746116,
+    "isStdOutTTY": false
+  },
+  "metrics": {
+    "http_req_failed": {
+      "thresholds": {
+        "rate<0.01": {
+          "ok": true
+        }
+      },
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0,
+        "passes": 0,
+        "fails": 114548
+      }
+    },
+    "vus_max": {
+      "contains": "default",
+      "values": {
+        "value": 200,
+        "min": 200,
+        "max": 200
+      },
+      "type": "gauge"
+    },
+    "http_req_connecting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 0,
+        "p(95)": 0,
+        "p(99)": 0,
+        "max": 12.476066,
+        "min": 0,
+        "avg": 0.006490638631839926
+      }
+    },
+    "http_req_receiving": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 0.3138595,
+        "p(95)": 1.8265477999999986,
+        "p(99)": 4.9372948399999945,
+        "max": 155.990957,
+        "min": 0.016271,
+        "avg": 0.6474462227101314
+      }
+    },
+    "rate_limited": {
+      "contains": "default",
+      "values": {
+        "count": 0,
+        "rate": 0
+      },
+      "type": "counter"
+    },
+    "transfers_accepted": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 34149,
+        "rate": 188.11171204914672
+      }
+    },
+    "http_req_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(99)": 854.81916453,
+        "max": 2122.334788,
+        "min": 1.902622,
+        "avg": 314.1860281420818,
+        "med": 296.7027265,
+        "p(95)": 606.67211245
+      }
+    },
+    "business_finished_epoch_ms": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "min": 1792667121741,
+        "avg": 1792667211795.3433,
+        "med": 1792667211941,
+        "p(95)": 1792667292780.1,
+        "p(99)": 1792667300216.24,
+        "max": 1792667301941
+      }
+    },
+    "http_req_duration{expected_response:true}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 296.7027265,
+        "p(95)": 606.67211245,
+        "p(99)": 854.81916453,
+        "max": 2122.334788,
+        "min": 1.902622,
+        "avg": 314.1860281420818
+      }
+    },
+    "vus": {
+      "values": {
+        "value": 200,
+        "min": 0,
+        "max": 200
+      },
+      "type": "gauge",
+      "contains": "default"
+    },
+    "http_req_waiting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(99)": 854.30039718,
+        "max": 2122.156787,
+        "min": 1.787658,
+        "avg": 313.5064230356388,
+        "med": 296.25820350000004,
+        "p(95)": 606.16770045
+      }
+    },
+    "checks": {
+      "contains": "default",
+      "values": {
+        "rate": 1,
+        "passes": 114548,
+        "fails": 0
+      },
+      "type": "rate"
+    },
+    "business_started_epoch_ms": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "p(95)": 1792667292515.2,
+        "p(99)": 1792667299941.48,
+        "max": 1792667301695,
+        "min": 1792667121698,
+        "avg": 1792667211480.9019,
+        "med": 1792667211676
+      }
+    },
+    "business_requests": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "rate": 630.9446070572262,
+        "count": 114539
+      }
+    },
+    "http_req_sending": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 96.983109,
+        "min": 0.006172,
+        "avg": 0.03215888372559954,
+        "med": 0.013575,
+        "p(95)": 0.06276665,
+        "p(99)": 0.3015445999999999
+      }
+    },
+    "iteration_duration": {
+      "contains": "time",
+      "values": {
+        "avg": 314.4584142717518,
+        "med": 296.937308,
+        "p(95)": 606.8909305,
+        "p(99)": 854.99477674,
+        "max": 2122.535242,
+        "min": 2.415119
+      },
+      "type": "trend"
+    },
+    "server_errors": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 0,
+        "rate": 0
+      }
+    },
+    "transfer_ms": {
+      "thresholds": {
+        "p(95)<2000": {
+          "ok": true
+        }
+      },
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 331.858453,
+        "p(95)": 647.0071975999999,
+        "p(99)": 901.5845710399972,
+        "max": 2122.334788,
+        "min": 6.425178,
+        "avg": 355.8013030479374
+      }
+    },
+    "http_req_blocked": {
+      "contains": "time",
+      "values": {
+        "p(99)": 0.044971099999999924,
+        "max": 12.5109,
+        "min": 0.001292,
+        "avg": 0.012379892586513685,
+        "med": 0.003557,
+        "p(95)": 0.005751
+      },
+      "type": "trend"
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 58491531,
+        "rate": 322203.93091410404
+      }
+    },
+    "http_reqs": {
+      "contains": "default",
+      "values": {
+        "count": 114548,
+        "rate": 630.9941840699775
+      },
+      "type": "counter"
+    },
+    "http_req_tls_handshaking": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 0,
+        "p(95)": 0,
+        "p(99)": 0,
+        "max": 0,
+        "min": 0,
+        "avg": 0
+      }
+    },
+    "wallet_read_ms": {
+      "contains": "time",
+      "values": {
+        "p(99)": 836.1072971200001,
+        "max": 1735.109518,
+        "min": 2.204687,
+        "avg": 296.527338124108,
+        "med": 279.5834195,
+        "p(95)": 582.50769095
+      },
+      "thresholds": {
+        "p(95)<1000": {
+          "ok": true
+        }
+      },
+      "type": "trend"
+    },
+    "data_received": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 69970566,
+        "rate": 385436.84919932694
+      }
+    },
+    "iterations": {
+      "contains": "default",
+      "values": {
+        "rate": 630.9446070572262,
+        "count": 114539
+      },
+      "type": "counter"
+    },
+    "business_failures": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0,
+        "passes": 0,
+        "fails": 114539
+      },
+      "thresholds": {
+        "rate<0.01": {
+          "ok": true
+        }
+      }
+    }
+  },
+  "offlinepayMetadata": {
+    "runId": "confirm-throughput-200-e1241fdd1e",
+    "vus": 200,
+    "duration": "180s",
+    "executor": "constant-vus",
+    "walletPairs": 1,
+    "workload": "Approximately 70% wallet reads / 30% fresh INR1 transfers, one shared sender",
+    "completedBusinessRpsExcludingSetup": 635.4698934216585,
+    "businessWindowSeconds": 180.243,
+    "maximumCapacityClaim": false
+  }
+}

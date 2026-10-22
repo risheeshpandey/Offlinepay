@@ -5,8 +5,8 @@ export { setup };
 
 const vus = Number(__ENV.VUS || 10);
 const duration = __ENV.DURATION || '30s';
-if (!Number.isInteger(vus) || vus < 1 || vus > 300 || !/^\d+s$/.test(duration)) {
-  throw new Error('CI workload requires 1..300 VUs and a duration in seconds');
+if (!Number.isInteger(vus) || vus < 1 || vus > 1000 || !/^\d+s$/.test(duration)) {
+  throw new Error('CI workload requires 1..1000 VUs and a duration in seconds');
 }
 export const options = {
   vus, duration, setupTimeout: '180s', gracefulStop: '30s', maxRedirects: 0,
