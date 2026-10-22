@@ -1,0 +1,23 @@
+# Identity and all financial writes stay in this core process.
+server:
+  address: ${BIND_ADDRESS:127.0.0.1}
+  port: 9031
+offlinepay:
+  notifications:
+    local-enabled: false
+  internal-token: ${INTERNAL_SERVICE_TOKEN}
+spring:
+  application:
+    name: offlinepay-core
+eureka:
+  client:
+    enabled: ${DISCOVERY_ENABLED:true}
+    fetch-registry: false
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8762/eureka/}
+  instance:
+    prefer-ip-address: true
+    ip-address: ${SERVICE_IP:127.0.0.1}
+    instance-id: ${spring.application.name}:${eureka.instance.ip-address}:${server.port}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30

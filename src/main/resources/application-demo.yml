@@ -1,0 +1,5 @@
+# Local virtual-money demonstration only.
+offlinepay:
+  demo-topups-enabled: true
+
+  cookies-secure: false

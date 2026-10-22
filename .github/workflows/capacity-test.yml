@@ -1,0 +1,126 @@
+name: OfflinePay measured capacity
+
+on:
+  workflow_dispatch:
+    inputs:
+      levels:
+        description: 'Ascending VU levels (1..1000, at most 8 levels)'
+        default: '10,25,50,100,200,300,500,1000'
+        required: true
+        type: string
+      seconds:
+        description: 'Seconds per short stage (10..120)'
+        default: '30'
+        required: true
+        type: string
+      confirmation_seconds:
+        description: 'Longer confirmation (60..300 seconds)'
+        default: '180'
+        required: true
+        type: string
+      outbox_poll_ms:
+        description: 'Outbox polling ms (50..5000); original application default is 2000'
+        default: '100'
+        required: true
+        type: string
+  # An authorized push of the capacity branch starts the first run without a
+  # workflow-dispatch API. Ordinary application pushes do not run a load test.
+  push:
+    branches: ['capacity-testing']
+    paths:
+      - '.github/workflows/capacity-test.yml'
+      - 'compose.capacity.yaml'
+      - 'scripts/run_capacity_ci.py'
+      - 'scripts/test_capacity_ci.py'
+      - 'benchmarks/ci-mixed.js'
+      - 'benchmarks/mixed.js'
+      - 'benchmarks/capacity-*.sql'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: offlinepay-capacity-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  capacity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned load generator and signing helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install cryptography==46.0.3
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/k6.tar.gz" https://github.com/grafana/k6/releases/download/v1.3.0/k6-v1.3.0-linux-amd64.tar.gz
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/k6-checksums.txt" https://github.com/grafana/k6/releases/download/v1.3.0/k6-v1.3.0-checksums.txt
+          cd "$RUNNER_TEMP"
+          grep ' k6-v1.3.0-linux-amd64.tar.gz$' k6-checksums.txt | sed 's/k6-v1.3.0-linux-amd64.tar.gz/k6.tar.gz/' | sha256sum --check --strict
+          tar -xzf k6.tar.gz
+          echo "$RUNNER_TEMP/k6-v1.3.0-linux-amd64" >> "$GITHUB_PATH"
+      - name: Test report and pass/fail policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s scripts -p test_capacity_ci.py -v
+          mkdir -p target/capacity-policy
+          ALLOW_DEMO_LOAD=yes SUMMARY=target/capacity-policy/export.json k6 run benchmarks/ci-summary-test.js
+          python scripts/verify_ci_benchmark.py
+          docker compose version
+          docker compose --env-file /dev/null -f compose.capacity.yaml config --quiet
+        env:
+          CAPACITY_POSTGRES_PASSWORD: config-validation-only
+          CAPACITY_DB_PORT: '15436'
+          CAPACITY_REDIS_PORT: '16381'
+          CAPACITY_KAFKA_PORT: '19094'
+      - name: Build applications and run Java unit checks
+        run: mvn -B -ntp -f services/pom.xml package
+      - name: Measure isolated mixed-workload stages
+        shell: bash
+        env:
+          CAPACITY_LEVELS: ${{ inputs.levels || '10,25,50,100,200,300,500,1000' }}
+          CAPACITY_SECONDS: ${{ inputs.seconds || '30' }}
+          CAPACITY_CONFIRM_SECONDS: ${{ inputs.confirmation_seconds || '180' }}
+          CAPACITY_OUTBOX_POLL_MS: ${{ inputs.outbox_poll_ms || '100' }}
+        run: |
+          set -euo pipefail
+          timeout --signal=INT --kill-after=60s 70m python scripts/run_capacity_ci.py \
+            --output target/capacity-report \
+            --levels "$CAPACITY_LEVELS" \
+            --seconds "$CAPACITY_SECONDS" \
+            --confirm-seconds "$CAPACITY_CONFIRM_SECONDS" \
+            --outbox-poll-ms "$CAPACITY_OUTBOX_POLL_MS"
+      - name: Publish readable run summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f target/capacity-report/report.md ]; then
+            cat target/capacity-report/report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: offlinepay-capacity-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            target/capacity-report/report.json
+            target/capacity-report/report.md
+            target/capacity-report/resources.jsonl
+            target/capacity-report/jvm-metrics.jsonl
+            target/capacity-report/diagnostics.json
+            target/capacity-report/warmup.json
+            target/capacity-report/search-*.json
+            target/capacity-report/confirm-*.json
+          retention-days: 14
+          if-no-files-found: warn

@@ -1,0 +1,952 @@
+{
+  "schemaVersion": 1,
+  "executionAttempted": true,
+  "stackReady": true,
+  "commit": "a1f05d4087603859bff334af434e5226bf6d664f",
+  "hardware": {
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "architecture": "x86_64",
+    "logicalCpus": 4,
+    "affinityCpus": 4,
+    "initialMemory": {
+      "utc": "2026-10-22T10:57:10Z",
+      "memoryLimitMiB": 15984,
+      "freeMemoryMiB": 14939,
+      "usedMemoryPercent": 6.54,
+      "cpuCounters": {
+        "usage_usec": 285810000,
+        "user_usec": 261003000,
+        "system_usec": 24807000,
+        "nice_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nr_periods": 0,
+        "nr_throttled": 0,
+        "throttled_usec": 0,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      }
+    },
+    "cpuModel": "AMD EPYC 7763 64-Core Processor",
+    "cpuQuota": "unavailable"
+  },
+  "workload": "Fixed VUs; about 70% wallet reads and 30% INR1 transfers; one hot sender",
+  "rules": {
+    "http_req_failed": "rate<0.01",
+    "business_failures": "rate<0.01",
+    "wallet_read_ms": "p(95)<1000",
+    "transfer_ms": "p(95)<2000"
+  },
+  "rateLimits": {
+    "authPerMinute": 10000,
+    "apiPerMinute": 100000
+  },
+  "redisTimeoutMs": 500,
+  "corePoolSize": 10,
+  "notificationPoolSize": 3,
+  "outboxPollMs": 100,
+  "outboxBatchSize": 20,
+  "heapsMiB": {
+    "core": 512,
+    "notifications": 256,
+    "gateway": 256,
+    "discovery": 192
+  },
+  "coLocatedLoadGenerator": true,
+  "maximumCapacityClaim": false,
+  "stages": [
+    {
+      "name": "warmup",
+      "kind": "warmup",
+      "vus": 5,
+      "requestedSeconds": 20,
+      "apiPassed": true,
+      "k6ExitCode": 0,
+      "stopReason": null,
+      "completedRequests": 2076,
+      "failedBusinessRequests": 0,
+      "businessFailureRate": 0,
+      "httpFailureRate": 0,
+      "acceptedTransfers": 617,
+      "observedBusinessRps": 103.65488316357101,
+      "wholeRunBusinessRpsIncludingSetup": 96.75220584738923,
+      "businessWindowSeconds": 20.028,
+      "walletReadP95Ms": 64.6888249,
+      "transferP95Ms": 136.72026719999997,
+      "transferP99Ms": 181.00039556000004,
+      "serverErrors": 0,
+      "rateLimited": 0,
+      "errorCodes": {
+        "response_503": 0,
+        "response_504": 0,
+        "response_other_5xx": 0,
+        "transport_failures": 0,
+        "error_rate_limit_unavailable": 0,
+        "error_database_unavailable": 0,
+        "error_insufficient_funds": 0,
+        "error_other": 0
+      },
+      "afterTrafficReconciliation": {
+        "core": {
+          "negativeWallets": 0,
+          "unbalancedOperations": 0,
+          "duplicateKeys": 0,
+          "walletLedgerMismatches": 0,
+          "walletPaise": 20000000,
+          "issuedPaise": 20000000,
+          "topups": 2,
+          "transfers": 618,
+          "operations": 620,
+          "outboxEvents": 620,
+          "unpublished": 0,
+          "failedEvents": 0,
+          "expectedNotices": 1238
+        },
+        "notifications": {
+          "consumedEvents": 620,
+          "actualNotices": 1238,
+          "duplicateNotices": 0,
+          "openDeadLetters": 0
+        }
+      },
+      "afterReconciliation": {
+        "core": {
+          "negativeWallets": 0,
+          "unbalancedOperations": 0,
+          "duplicateKeys": 0,
+          "walletLedgerMismatches": 0,
+          "walletPaise": 20000000,
+          "issuedPaise": 20000000,
+          "topups": 2,
+          "transfers": 618,
+          "operations": 620,
+          "outboxEvents": 620,
+          "unpublished": 0,
+          "failedEvents": 0,
+          "expectedNotices": 1238
+        },
+        "notifications": {
+          "consumedEvents": 620,
+          "actualNotices": 1238,
+          "duplicateNotices": 0,
+          "openDeadLetters": 0
+        }
+      },
+      "deliveryDrainSeconds": 5.73,
+      "deliveryPassed": true,
+      "databaseTransferDelta": 617,
+      "topupDelta": 1,
+      "committedNotAcknowledgedTransfers": 0,
+      "passed": true
+    },
+    {
+      "name": "search-10",
+      "kind": "search",
+      "vus": 10,
+      "requestedSeconds": 30,
+      "apiPassed": true,
+      "k6ExitCode": 0,
+      "stopReason": null,
+      "completedRequests": 6183,
+      "failedBusinessRequests": 0,
+      "businessFailureRate": 0,
+      "httpFailureRate": 0,
+      "acceptedTransfers": 1846,
+      "observedBusinessRps": 205.5381955986969,
+      "wholeRunBusinessRpsIncludingSetup": 197.4011611812886,
+      "businessWindowSeconds": 30.082,
+      "walletReadP95Ms": 38.0174754,
+      "transferP95Ms": 232.19356275,
+      "transferP99Ms": 305.680413,
+      "serverErrors": 0,
+      "rateLimited": 0,
+      "errorCodes": {
+        "response_503": 0,
+        "response_504": 0,
+        "response_other_5xx": 0,
+        "transport_failures": 0,
+        "error_rate_limit_unavailable": 0,
+        "error_database_unavailable": 0,
+        "error_insufficient_funds": 0,
+        "error_other": 0
+      },
+      "afterTrafficReconciliation": {
+        "core": {
+          "negativeWallets": 0,
+          "unbalancedOperations": 0,
+          "duplicateKeys": 0,
+          "walletLedgerMismatches": 0,
+          "walletPaise": 30000000,
+          "issuedPaise": 30000000,
+          "topups": 3,
+          "transfers": 2464,
+          "operations": 2467,
+          "outboxEvents": 2467,
+          "unpublished": 0,
+          "failedEvents": 0,
+          "expectedNotices": 4931
+        },
+        "notifications": {
+          "consumedEvents": 2467,
+          "actualNotices": 4931,
+          "duplicateNotices": 0,
+          "openDeadLetters": 0
+        }
+      },
+      "afterReconciliation": {
+        "core": {
+          "negativeWallets": 0,
+          "unbalancedOperations": 0,
+          "duplicateKeys": 0,
+          "walletLedgerMismatches": 0,
+          "walletPaise": 30000000,
+          "issuedPaise": 30000000,
+          "topups": 3,
+          "transfers": 2464,
+          "operations": 2467,
+          "outboxEvents": 2467,
+          "unpublished": 0,
+          "failedEvents": 0,
+          "expectedNotices": 4931
+        },
+        "notifications": {
+          "consumedEvents": 2467,
+          "actualNotices": 4931,
+          "duplicateNotices": 0,
+          "openDeadLetters": 0
+        }
+      },
+      "deliveryDrainSeconds": 5.61,
+      "deliveryPassed": true,
+      "databaseTransferDelta": 1846,
+      "topupDelta": 1,
+      "committedNotAcknowledgedTransfers": 0,
+      "passed": true
+    },
+    {
+      "name": "search-25",
+      "kind": "search",
+      "vus": 25,
+      "requestedSeconds": 30,
+      "apiPassed": true,
+      "k6ExitCode": 0,
+      "stopReason": null,
+      "completedRequests": 13875,
+      "failedBusinessRequests": 0,
+      "businessFailureRate": 0,
+      "httpFailureRate": 0,
+      "acceptedTransfers": 4142,
+      "observedBusinessRps": 460.45863339196234,
+      "wholeRunBusinessRpsIncludingSetup": 442.195327612168,
+      "businessWindowSeconds": 30.133,
+      "walletReadP95Ms": 74.29945099999993,
+      "transferP95Ms": 192.49417124999997,
+      "transferP99Ms": 269.64951745,
+      "serverErrors": 0,
+      "rateLimited": 0,
+      "errorCodes": {
+        "response_503": 0,
+        "response_504": 0,
+        "response_other_5xx": 0,
+        "transport_failures": 0,
+        "error_rate_limit_unavailable": 0,
+        "error_database_unavailable": 0,
+        "error_insufficient_funds": 0,
+        "error_other": 0
+      },
+      "afterTrafficReconciliation": {
+        "core": {
+          "negativeWallets": 0,
+          "unbalancedOperations": 0,
+          "duplicateKeys": 0,
+          "walletLedgerMismatches": 0,
+          "walletPaise": 40000000,
+          "issuedPaise": 40000000,
+          "topups": 4,
+          "transfers": 6606,
+          "operations": 6610,
+          "outboxEvents": 6610,
+          "unpublished": 3082,
+          "failedEvents": 0,
+          "expectedNotices": 13216
+        },
+        "notifications": {
+          "consumedEvents": 3542,
+          "actualNotices": 7080,
+          "duplicateNotices": 0,
+          "openDeadLetters": 0
+        }
+      },
+      "afterReconciliation": {
+        "core": {
+          "negativeWallets": 0,
+          "unbalancedOperations": 0,
+          "duplicateKeys": 0,
+          "walletLedgerMismatches": 0,
+          "walletPaise": 40000000,
+          "issuedPaise": 40000000,
+          "topups": 4,
+          "transfers": 6606,
+          "operations": 6610,
+          "outboxEvents": 6610,
+          "unpublished": 0,
+          "failedEvents": 0,
+          "expectedNotices": 13216
+        },
+        "notifications": {
+          "consumedEvents": 6610,
+          "actualNotices": 13216,
+          "duplicateNotices": 0,
+          "openDeadLetters": 0
+        }
+      },
+      "deliveryDrainSeconds": 32.76,
+      "deliveryPassed": true,
+      "databaseTransferDelta": 4142,
+      "topupDelta": 1,
+      "committedNotAcknowledgedTransfers": 0,
+      "passed": true
+    },
+    {
+      "name": "search-50",
+      "kind": "search",
+      "vus": 50,
+      "requestedSeconds": 30,
+      "apiPassed": true,
+      "k6ExitCode": 0,
+      "stopReason": null,
+      "completedRequests": 18131,
+      "failedBusinessRequests": 0,
+      "businessFailureRate": 0,
+      "httpFailureRate": 0,
+      "acceptedTransfers": 5397,
+      "observedBusinessRps": 602.7392706359497,
+      "wholeRunBusinessRpsIncludingSetup": 579.1983938294607,
+      "businessWindowSeconds": 30.081,
+      "walletReadP95Ms": 127.83844345,
+      "transferP95Ms": 202.9441222,
+      "transferP99Ms": 267.48300967999995,
+      "serverErrors": 0,
+      "rateLimited": 0,
+      "errorCodes": {
+        "response_503": 0,
+        "response_504": 0,
+        "response_other_5xx": 0,
+        "transport_failures": 0,
+        "error_rate_limit_unavailable": 0,
+        "error_database_unavailable": 0,
+        "error_insufficient_funds": 0,
+        "error_other": 0
+      },
+      "afterTrafficReconciliation": {
+        "core": {
+          "negativeWallets": 0,
+          "unbalancedOperations": 0,
+          "duplicateKeys": 0,
+          "walletLedgerMismatches": 0,
+          "walletPaise": 50000000,
+          "issuedPaise": 50000000,
+          "topups": 5,
+          "transfers": 12003,
+          "operations": 12008,
+          "outboxEvents": 12008,
+          "unpublished": 4677,
+          "failedEvents": 0,
+          "expectedNotices": 24011
+        },
+        "notifications": {
+          "consumedEvents": 7351,
+          "actualNotices": 14697,
+          "duplicateNotices": 0,
+          "openDeadLetters": 0
+        }
+      },
+      "afterReconciliation": {
+        "core": {
+          "negativeWallets": 0,
+          "unbalancedOperations": 0,
+          "duplicateKeys": 0,
+          "walletLedgerMismatches": 0,
+          "walletPaise": 50000000,
+          "issuedPaise": 50000000,
+          "topups": 5,
+          "transfers": 12003,
+          "operations": 12008,
+          "outboxEvents": 12008,
+          "unpublished": 0,
+          "failedEvents": 0,
+          "expectedNotices": 24011
+        },
+        "notifications": {
+          "consumedEvents": 12008,
+          "actualNotices": 24011,
+          "duplicateNotices": 0,
+          "openDeadLetters": 0
+        }
+      },
+      "deliveryDrainSeconds": 43.94,
+      "deliveryPassed": true,
+      "databaseTransferDelta": 5397,
+      "topupDelta": 1,
+      "committedNotAcknowledgedTransfers": 0,
+      "passed": true
+    },
+    {
+      "name": "search-100",
+      "kind": "search",
+      "vus": 100,
+      "requestedSeconds": 30,
+      "apiPassed": true,
+      "k6ExitCode": 0,
+      "stopReason": null,
+      "completedRequests": 18702,
+      "failedBusinessRequests": 0,
+      "businessFailureRate": 0,
+      "httpFailureRate": 0,
+      "acceptedTransfers": 5502,
+      "observedBusinessRps": 619.7845898922949,
+      "wholeRunBusinessRpsIncludingSetup": 595.6316695724626,
+      "businessWindowSeconds": 30.175,
+      "walletReadP95Ms": 280.2806063499999,
+      "transferP95Ms": 350.2742291999999,
+      "transferP99Ms": 475.9388714999999,
+      "serverErrors": 0,
+      "rateLimited": 0,
+      "errorCodes": {
+        "response_503": 0,
+        "response_504": 0,
+        "response_other_5xx": 0,
+        "transport_failures": 0,
+        "error_rate_limit_unavailable": 0,
+        "error_database_unavailable": 0,
+        "error_insufficient_funds": 0,
+        "error_other": 0
+      },
+      "afterTrafficReconciliation": {
+        "core": {
+          "negativeWallets": 0,
+          "unbalancedOperations": 0,
+          "duplicateKeys": 0,
+          "walletLedgerMismatches": 0,
+          "walletPaise": 60000000,
+          "issuedPaise": 60000000,
+          "topups": 6,
+          "transfers": 17505,
+          "operations": 17511,
+          "outboxEvents": 17511,
+          "unpublished": 5018,
+          "failedEvents": 0,
+          "expectedNotices": 35016
+        },
+        "notifications": {
+          "consumedEvents": 12526,
+          "actualNotices": 25046,
+          "duplicateNotices": 0,
+          "openDeadLetters": 0
+        }
+      },
+      "afterReconciliation": {
+        "core": {
+          "negativeWallets": 0,
+          "unbalancedOperations": 0,
+          "duplicateKeys": 0,
+          "walletLedgerMismatches": 0,
+          "walletPaise": 60000000,
+          "issuedPaise": 60000000,
+          "topups": 6,
+          "transfers": 17505,
+          "operations": 17511,
+          "outboxEvents": 17511,
+          "unpublished": 0,
+          "failedEvents": 0,
+          "expectedNotices": 35016
+        },
+        "notifications": {
+          "consumedEvents": 17511,
+          "actualNotices": 35016,
+          "duplicateNotices": 0,
+          "openDeadLetters": 0
+        }
+      },
+      "deliveryDrainSeconds": 49.55,
+      "deliveryPassed": true,
+      "databaseTransferDelta": 5502,
+      "topupDelta": 1,
+      "committedNotAcknowledgedTransfers": 0,
+      "passed": true
+    },
+    {
+      "name": "search-200",
+      "kind": "search",
+      "vus": 200,
+      "requestedSeconds": 30,
+      "apiPassed": true,
+      "k6ExitCode": 0,
+      "stopReason": null,
+      "completedRequests": 19306,
+      "failedBusinessRequests": 0,
+      "businessFailureRate": 0,
+      "httpFailureRate": 0,
+      "acceptedTransfers": 5585,
+      "observedBusinessRps": 633.2327473104173,
+      "wholeRunBusinessRpsIncludingSetup": 608.8946198608122,
+      "businessWindowSeconds": 30.488,
+      "walletReadP95Ms": 577.222148,
+      "transferP95Ms": 657.7854446,
+      "transferP99Ms": 927.6734700799999,
+      "serverErrors": 0,
+      "rateLimited": 0,
+      "errorCodes": {
+        "response_503": 0,
+        "response_504": 0,
+        "response_other_5xx": 0,
+        "transport_failures": 0,
+        "error_rate_limit_unavailable": 0,
+        "error_database_unavailable": 0,
+        "error_insufficient_funds": 0,
+        "error_other": 0
+      },
+      "afterTrafficReconciliation": {
+        "core": {
+          "negativeWallets": 0,
+          "unbalancedOperations": 0,
+          "duplicateKeys": 0,
+          "walletLedgerMismatches": 0,
+          "walletPaise": 70000000,
+          "issuedPaise": 70000000,
+          "topups": 7,
+          "transfers": 23090,
+          "operations": 23097,
+          "outboxEvents": 23097,
+          "unpublished": 5236,
+          "failedEvents": 0,
+          "expectedNotices": 46187
+        },
+        "notifications": {
+          "consumedEvents": 17885,
+          "actualNotices": 35763,
+          "duplicateNotices": 0,
+          "openDeadLetters": 0
+        }
+      },
+      "afterReconciliation": {
+        "core": {
+          "negativeWallets": 0,
+          "unbalancedOperations": 0,
+          "duplicateKeys": 0,
+          "walletLedgerMismatches": 0,
+          "walletPaise": 70000000,
+          "issuedPaise": 70000000,
+          "topups": 7,
+          "transfers": 23090,
+          "operations": 23097,
+          "outboxEvents": 23097,
+          "unpublished": 0,
+          "failedEvents": 0,
+          "expectedNotices": 46187
+        },
+        "notifications": {
+          "consumedEvents": 23097,
+          "actualNotices": 46187,
+          "duplicateNotices": 0,
+          "openDeadLetters": 0
+        }
+      },
+      "deliveryDrainSeconds": 49.86,
+      "deliveryPassed": true,
+      "databaseTransferDelta": 5585,
+      "topupDelta": 1,
+      "committedNotAcknowledgedTransfers": 0,
+      "passed": true
+    }
+  ],
+  "confirmation": {
+    "name": "confirm-throughput-200",
+    "kind": "confirmation",
+    "vus": 200,
+    "requestedSeconds": 180,
+    "apiPassed": true,
+    "k6ExitCode": 0,
+    "stopReason": null,
+    "completedRequests": 114539,
+    "failedBusinessRequests": 0,
+    "businessFailureRate": 0,
+    "httpFailureRate": 0,
+    "acceptedTransfers": 34149,
+    "observedBusinessRps": 635.4698934216585,
+    "wholeRunBusinessRpsIncludingSetup": 630.9446070572262,
+    "businessWindowSeconds": 180.243,
+    "walletReadP95Ms": 582.50769095,
+    "transferP95Ms": 647.0071975999999,
+    "transferP99Ms": 901.5845710399972,
+    "serverErrors": 0,
+    "rateLimited": 0,
+    "errorCodes": {
+      "response_503": 0,
+      "response_504": 0,
+      "response_other_5xx": 0,
+      "transport_failures": 0,
+      "error_rate_limit_unavailable": 0,
+      "error_database_unavailable": 0,
+      "error_insufficient_funds": 0,
+      "error_other": 0
+    },
+    "afterTrafficReconciliation": {
+      "core": {
+        "negativeWallets": 0,
+        "unbalancedOperations": 0,
+        "duplicateKeys": 0,
+        "walletLedgerMismatches": 0,
+        "walletPaise": 80000000,
+        "issuedPaise": 80000000,
+        "topups": 8,
+        "transfers": 57239,
+        "operations": 57247,
+        "outboxEvents": 57247,
+        "unpublished": 33401,
+        "failedEvents": 0,
+        "expectedNotices": 114486
+      },
+      "notifications": {
+        "consumedEvents": 23886,
+        "actualNotices": 47764,
+        "duplicateNotices": 0,
+        "openDeadLetters": 0
+      }
+    },
+    "afterReconciliation": {
+      "core": {
+        "negativeWallets": 0,
+        "unbalancedOperations": 0,
+        "duplicateKeys": 0,
+        "walletLedgerMismatches": 0,
+        "walletPaise": 80000000,
+        "issuedPaise": 80000000,
+        "topups": 8,
+        "transfers": 57239,
+        "operations": 57247,
+        "outboxEvents": 57247,
+        "unpublished": 0,
+        "failedEvents": 0,
+        "expectedNotices": 114486
+      },
+      "notifications": {
+        "consumedEvents": 57247,
+        "actualNotices": 114486,
+        "duplicateNotices": 0,
+        "openDeadLetters": 0
+      }
+    },
+    "deliveryDrainSeconds": 285.12,
+    "deliveryPassed": true,
+    "databaseTransferDelta": 34149,
+    "topupDelta": 1,
+    "committedNotAcknowledgedTransfers": 0,
+    "passed": true
+  },
+  "concurrencyConfirmation": {
+    "name": "confirm-throughput-200",
+    "kind": "confirmation",
+    "vus": 200,
+    "requestedSeconds": 180,
+    "apiPassed": true,
+    "k6ExitCode": 0,
+    "stopReason": null,
+    "completedRequests": 114539,
+    "failedBusinessRequests": 0,
+    "businessFailureRate": 0,
+    "httpFailureRate": 0,
+    "acceptedTransfers": 34149,
+    "observedBusinessRps": 635.4698934216585,
+    "wholeRunBusinessRpsIncludingSetup": 630.9446070572262,
+    "businessWindowSeconds": 180.243,
+    "walletReadP95Ms": 582.50769095,
+    "transferP95Ms": 647.0071975999999,
+    "transferP99Ms": 901.5845710399972,
+    "serverErrors": 0,
+    "rateLimited": 0,
+    "errorCodes": {
+      "response_503": 0,
+      "response_504": 0,
+      "response_other_5xx": 0,
+      "transport_failures": 0,
+      "error_rate_limit_unavailable": 0,
+      "error_database_unavailable": 0,
+      "error_insufficient_funds": 0,
+      "error_other": 0
+    },
+    "afterTrafficReconciliation": {
+      "core": {
+        "negativeWallets": 0,
+        "unbalancedOperations": 0,
+        "duplicateKeys": 0,
+        "walletLedgerMismatches": 0,
+        "walletPaise": 80000000,
+        "issuedPaise": 80000000,
+        "topups": 8,
+        "transfers": 57239,
+        "operations": 57247,
+        "outboxEvents": 57247,
+        "unpublished": 33401,
+        "failedEvents": 0,
+        "expectedNotices": 114486
+      },
+      "notifications": {
+        "consumedEvents": 23886,
+        "actualNotices": 47764,
+        "duplicateNotices": 0,
+        "openDeadLetters": 0
+      }
+    },
+    "afterReconciliation": {
+      "core": {
+        "negativeWallets": 0,
+        "unbalancedOperations": 0,
+        "duplicateKeys": 0,
+        "walletLedgerMismatches": 0,
+        "walletPaise": 80000000,
+        "issuedPaise": 80000000,
+        "topups": 8,
+        "transfers": 57239,
+        "operations": 57247,
+        "outboxEvents": 57247,
+        "unpublished": 0,
+        "failedEvents": 0,
+        "expectedNotices": 114486
+      },
+      "notifications": {
+        "consumedEvents": 57247,
+        "actualNotices": 114486,
+        "duplicateNotices": 0,
+        "openDeadLetters": 0
+      }
+    },
+    "deliveryDrainSeconds": 285.12,
+    "deliveryPassed": true,
+    "databaseTransferDelta": 34149,
+    "topupDelta": 1,
+    "committedNotAcknowledgedTransfers": 0,
+    "passed": true
+  },
+  "status": "CONFIRMED_OBSERVATION",
+  "phase": "confirmation",
+  "javaVersion": "openjdk 21.0.12.1 2026-08-18 LTS\nOpenJDK Runtime Environment Temurin-21.0.12.1+1 (build 21.0.12.1+1-LTS)\nOpenJDK 64-Bit Server VM Temurin-21.0.12.1+1 (build 21.0.12.1+1-LTS, mixed mode, sharing)",
+  "k6Version": "k6 v1.3.0 (commit/5870e99ae8, go1.25.1, linux/amd64)",
+  "images": "[{\"ID\":\"sha256:4df5c34dc41256fc4ed293482cb34281e17d133077e9aa3c6a87fda60a356c65\",\"ContainerName\":\"offlinepay-capacity-7e75b9341eab-redis-1\",\"Repository\":\"redis\",\"Tag\":\"7.4.11-alpine\",\"Platform\":\"linux/amd64\",\"Size\":39058131,\"LastTagTime\":\"0001-01-01T00:00:00Z\"},{\"ID\":\"sha256:44a48f9d78af26959fa4d61accb9be35f939a79bfdae05cad6df4baca8e22eeb\",\"ContainerName\":\"offlinepay-capacity-7e75b9341eab-kafka-1\",\"Repository\":\"apache/kafka\",\"Tag\":\"3.9.1\",\"Platform\":\"linux/amd64\",\"Size\":353704513,\"LastTagTime\":\"0001-01-01T00:00:00Z\"},{\"ID\":\"sha256:50903ccdcab597707a1f61c7ae016a06b0b548da53a6f7ad716d56b072bedba0\",\"ContainerName\":\"offlinepay-capacity-7e75b9341eab-postgres-1\",\"Repository\":\"postgres\",\"Tag\":\"17.6\",\"Platform\":\"linux/amd64\",\"Size\":453251835,\"LastTagTime\":\"0001-01-01T00:00:00Z\"}]",
+  "isolationPreflightPassed": true,
+  "preflight": {
+    "core": {
+      "negativeWallets": 0,
+      "unbalancedOperations": 0,
+      "duplicateKeys": 0,
+      "walletLedgerMismatches": 0,
+      "walletPaise": 10000000,
+      "issuedPaise": 10000000,
+      "topups": 1,
+      "transfers": 1,
+      "operations": 2,
+      "outboxEvents": 2,
+      "unpublished": 0,
+      "failedEvents": 0,
+      "expectedNotices": 3
+    },
+    "notifications": {
+      "consumedEvents": 2,
+      "actualNotices": 3,
+      "duplicateNotices": 0,
+      "openDeadLetters": 0
+    }
+  },
+  "highestObservedPassingStage": {
+    "name": "search-200",
+    "kind": "search",
+    "vus": 200,
+    "requestedSeconds": 30,
+    "apiPassed": true,
+    "k6ExitCode": 0,
+    "stopReason": null,
+    "completedRequests": 19306,
+    "failedBusinessRequests": 0,
+    "businessFailureRate": 0,
+    "httpFailureRate": 0,
+    "acceptedTransfers": 5585,
+    "observedBusinessRps": 633.2327473104173,
+    "wholeRunBusinessRpsIncludingSetup": 608.8946198608122,
+    "businessWindowSeconds": 30.488,
+    "walletReadP95Ms": 577.222148,
+    "transferP95Ms": 657.7854446,
+    "transferP99Ms": 927.6734700799999,
+    "serverErrors": 0,
+    "rateLimited": 0,
+    "errorCodes": {
+      "response_503": 0,
+      "response_504": 0,
+      "response_other_5xx": 0,
+      "transport_failures": 0,
+      "error_rate_limit_unavailable": 0,
+      "error_database_unavailable": 0,
+      "error_insufficient_funds": 0,
+      "error_other": 0
+    },
+    "afterTrafficReconciliation": {
+      "core": {
+        "negativeWallets": 0,
+        "unbalancedOperations": 0,
+        "duplicateKeys": 0,
+        "walletLedgerMismatches": 0,
+        "walletPaise": 70000000,
+        "issuedPaise": 70000000,
+        "topups": 7,
+        "transfers": 23090,
+        "operations": 23097,
+        "outboxEvents": 23097,
+        "unpublished": 5236,
+        "failedEvents": 0,
+        "expectedNotices": 46187
+      },
+      "notifications": {
+        "consumedEvents": 17885,
+        "actualNotices": 35763,
+        "duplicateNotices": 0,
+        "openDeadLetters": 0
+      }
+    },
+    "afterReconciliation": {
+      "core": {
+        "negativeWallets": 0,
+        "unbalancedOperations": 0,
+        "duplicateKeys": 0,
+        "walletLedgerMismatches": 0,
+        "walletPaise": 70000000,
+        "issuedPaise": 70000000,
+        "topups": 7,
+        "transfers": 23090,
+        "operations": 23097,
+        "outboxEvents": 23097,
+        "unpublished": 0,
+        "failedEvents": 0,
+        "expectedNotices": 46187
+      },
+      "notifications": {
+        "consumedEvents": 23097,
+        "actualNotices": 46187,
+        "duplicateNotices": 0,
+        "openDeadLetters": 0
+      }
+    },
+    "deliveryDrainSeconds": 49.86,
+    "deliveryPassed": true,
+    "databaseTransferDelta": 5585,
+    "topupDelta": 1,
+    "committedNotAcknowledgedTransfers": 0,
+    "passed": true
+  },
+  "highestPassingConcurrencyStage": {
+    "name": "search-200",
+    "kind": "search",
+    "vus": 200,
+    "requestedSeconds": 30,
+    "apiPassed": true,
+    "k6ExitCode": 0,
+    "stopReason": null,
+    "completedRequests": 19306,
+    "failedBusinessRequests": 0,
+    "businessFailureRate": 0,
+    "httpFailureRate": 0,
+    "acceptedTransfers": 5585,
+    "observedBusinessRps": 633.2327473104173,
+    "wholeRunBusinessRpsIncludingSetup": 608.8946198608122,
+    "businessWindowSeconds": 30.488,
+    "walletReadP95Ms": 577.222148,
+    "transferP95Ms": 657.7854446,
+    "transferP99Ms": 927.6734700799999,
+    "serverErrors": 0,
+    "rateLimited": 0,
+    "errorCodes": {
+      "response_503": 0,
+      "response_504": 0,
+      "response_other_5xx": 0,
+      "transport_failures": 0,
+      "error_rate_limit_unavailable": 0,
+      "error_database_unavailable": 0,
+      "error_insufficient_funds": 0,
+      "error_other": 0
+    },
+    "afterTrafficReconciliation": {
+      "core": {
+        "negativeWallets": 0,
+        "unbalancedOperations": 0,
+        "duplicateKeys": 0,
+        "walletLedgerMismatches": 0,
+        "walletPaise": 70000000,
+        "issuedPaise": 70000000,
+        "topups": 7,
+        "transfers": 23090,
+        "operations": 23097,
+        "outboxEvents": 23097,
+        "unpublished": 5236,
+        "failedEvents": 0,
+        "expectedNotices": 46187
+      },
+      "notifications": {
+        "consumedEvents": 17885,
+        "actualNotices": 35763,
+        "duplicateNotices": 0,
+        "openDeadLetters": 0
+      }
+    },
+    "afterReconciliation": {
+      "core": {
+        "negativeWallets": 0,
+        "unbalancedOperations": 0,
+        "duplicateKeys": 0,
+        "walletLedgerMismatches": 0,
+        "walletPaise": 70000000,
+        "issuedPaise": 70000000,
+        "topups": 7,
+        "transfers": 23090,
+        "operations": 23097,
+        "outboxEvents": 23097,
+        "unpublished": 0,
+        "failedEvents": 0,
+        "expectedNotices": 46187
+      },
+      "notifications": {
+        "consumedEvents": 23097,
+        "actualNotices": 46187,
+        "duplicateNotices": 0,
+        "openDeadLetters": 0
+      }
+    },
+    "deliveryDrainSeconds": 49.86,
+    "deliveryPassed": true,
+    "databaseTransferDelta": 5585,
+    "topupDelta": 1,
+    "committedNotAcknowledgedTransfers": 0,
+    "passed": true
+  },
+  "preConfirmationReconciliation": {
+    "core": {
+      "negativeWallets": 0,
+      "unbalancedOperations": 0,
+      "duplicateKeys": 0,
+      "walletLedgerMismatches": 0,
+      "walletPaise": 70000000,
+      "issuedPaise": 70000000,
+      "topups": 7,
+      "transfers": 23090,
+      "operations": 23097,
+      "outboxEvents": 23097,
+      "unpublished": 0,
+      "failedEvents": 0,
+      "expectedNotices": 46187
+    },
+    "notifications": {
+      "consumedEvents": 23097,
+      "actualNotices": 46187,
+      "duplicateNotices": 0,
+      "openDeadLetters": 0
+    }
+  },
+  "preConfirmationDrainSeconds": 5.82,
+  "searchCeilingReached": true
+}
