@@ -53,6 +53,22 @@ services:
       interval: 5s
       timeout: 3s
       retries: 15
+  # Optional browser for this project's Kafka. Start explicitly with --profile kafka-ui.
+  kafbat-ui:
+    image: ghcr.io/kafbat/kafka-ui:v1.5.0
+    profiles: [kafka-ui]
+    ports:
+      - "127.0.0.1:${KAFBAT_UI_PORT:-8082}:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: offlinepay-local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_READONLY: "true"
+      DYNAMIC_CONFIG_ENABLED: "false"
+      JAVA_TOOL_OPTIONS: -Xms64m -Xmx256m
+    mem_limit: 512m
+    depends_on:
+      kafka:
+        condition: service_healthy
   app:
     build: .
     volumes:

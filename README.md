@@ -24,6 +24,7 @@ Across the full suite, 120,038 operations and 240,065 in-app notifications recon
 
 - [Agreed current-code review, M7 order and deferred backlog](docs/project-roadmap.md)
 - [Current startup, management ports and observability](docs/milestone-6.md)
+- [Inspect Kafka messages with Kafbat UI and search logs with ELK](docs/kafka-ui-and-elk.md)
 - [Disposable GitHub Actions capacity test and measurement rules](docs/github-capacity-test.md)
 - [Actual local stress observations and limitations](docs/m6-manual-stress-results.md)
 - [Hosted capacity results and tested boundary](docs/capacity-results.md)
