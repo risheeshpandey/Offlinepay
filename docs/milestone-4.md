@@ -109,7 +109,7 @@ OutboxWriter -> OutboxEvent -> OutboxTransactions -> OutboxRelay -> KafkaPayment
 
 ## Explicit follow-up backlog
 
-Agreed: longer sync window (duration not yet chosen), signed deadline in a compatible next protocol, sender OR receiver proof submission, mobile durable proof storage, primary automatic sync/retry, 12-hour local reminders and opposite-device status refresh. The notification infrastructure is now ready, but no real phone/app SMS delivery or sender-side settlement is claimed here. No INR100 fine. Early release based on 'no server payment record' was rejected. Existing deadline-based release remains. Entity/repository + V5/V6 detailed teaching stays deferred.
+Agreed: longer sync window (duration not yet chosen), signed deadline in a compatible next protocol, sender OR receiver proof submission, mobile durable proof storage, primary automatic sync/retry, 12-hour local reminders and opposite-device status refresh. The notification infrastructure is now ready, but no real phone/app SMS delivery or sender-side settlement is claimed here. No INR100 fine. Early release based on 'no server payment record' was rejected. Existing deadline-based release remains.
 
 Still later: OpenFeign with actual microservices, tracing/ELK/metrics/load measurement/Kubernetes, trusted device time/hardware, late-claim adjudication and recovery policy, automatic reserve release, phone exchange. No RPS or 10K concurrency promise. Local Kafka is a single-node development broker without TLS/ACL/high availability; application ports are bound to loopback for this lab.
 

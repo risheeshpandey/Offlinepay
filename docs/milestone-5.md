@@ -177,9 +177,9 @@ Health checks:9031/core,9032/notifications,9030/gateway `/actuator/health`. A ga
 
 Before any split-mode traffic, stop all three JARs and run the original core with only `demo` profile on9030. The old inbox tables were retained, so this pre-cutover rollback is immediate. **After split traffic, do not simply re-enable the old consumer**: the old tables are stale while Kafka group offsets advanced. First stop producers/consumers, back up both databases, reconcile/copy the complete notification-owned tables and markers back under controlled maintenance, verify counts and provider lease states, then resume one owner. Financial core data needs no reverse migration. The optional monolith mode is for learning/compatibility, not active-active ownership.
 
-## Evidence and honest CV scope
+## Implementation and validation scope
 
-See `docs/verification.md` for executed tests and limitations. No fabricated throughput, concurrency, latency or production claims. Candidate CV bullets after local acceptance:
+See `docs/verification.md` for executed tests and limitations. No fabricated throughput, concurrency, latency or production claims. Implemented behavior to verify during local acceptance:
 
 - Built an offline-payment backend with Spring Boot, JPA and PostgreSQL, preserving atomic wallet/ledger updates and idempotent settlement.
 - Extracted notifications into a separate service and database, integrating Spring Cloud Gateway, OpenFeign and Kafka transactional-outbox events.
@@ -187,6 +187,6 @@ See `docs/verification.md` for executed tests and limitations. No fabricated thr
 
 A public GitHub link and deployment are still pending. M6 measured performance/observability and M7 Android offline transport are not complete.
 
-## Deferred work we agreed to keep
+## Planned extensions
 
 After M5 testing, resume M4 code reading, then M5. Detailed M3 V5/V6/entity notes can follow. Longer sync window (duration undecided), signed syncDeadline, sender-or-receiver proof upload, mobile durable proof queue/automatic sync/retry,12-hour local reminder and opposite-party settlement status updates remain backlog. No fine and no early release merely because a payment is absent from the server. Existing M3 deadline/release rules are unchanged.

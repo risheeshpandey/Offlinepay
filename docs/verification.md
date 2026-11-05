@@ -1,5 +1,7 @@
 # Verification - Milestone 4
 
+> Historical local validation record. Later hosted Java 21 validation passed 184 unique cases; see [hosted CI evidence](ci-validation.md) and [hosted capacity results](capacity-results.md). Counts, failures and pending checks below retain their original checkpoint scope.
+
 Date: 19 October 2026. Target: Java 21, Spring Boot 3.5.16, PostgreSQL 17.6. Local development broker image: apache/kafka:3.9.1; Redis:7.4.11-alpine. This is a virtual-money portfolio application.
 
 ## Executed locally
@@ -55,7 +57,7 @@ On 19 October the user tested Milestone 3 on Windows/PostgreSQL: INR40 + INR60 o
 
 ## Remaining product work
 
-See milestone-4.md for accepted protocol/mobile backlog and manual failure lab. No automatic reserve-release scheduler, late-claim adjudication, sender-side proof submission, actual phone exchange, mobile auto-sync/local reminders or longer policy default has silently been added. The rejected early-release/no-server-record idea and INR100 fine are not implemented. Milestone 3 entity/repository and V5/V6 detailed teaching remains deferred.
+See milestone-4.md for accepted protocol/mobile backlog and manual failure lab. No automatic reserve-release scheduler, late-claim adjudication, sender-side proof submission, actual phone exchange, mobile auto-sync/local reminders or longer policy default has silently been added. The rejected early-release/no-server-record idea and INR100 fine are not implemented.
 
 
 ## Milestone 5 verification
@@ -91,4 +93,4 @@ The user verified the four applications UP, preserved inbox migration counts/rea
 
 ## M6
 
-See [milestone-6-report.md](milestone-6-report.md) for exact executed100-test and actual-process functional evidence, Docker initialization failures and static configuration validation. The user subsequently executed PostgreSQL 1/5/10-VU,30-second local runs: all configured thresholds passed and both databases reconciled at each checkpoint. The10-VU run achieved163.10 mixed requests/s, transfer p95/p99 333.32/481.82ms and zero request failures. Final cumulative counts:2,982 transfers,2,986 published/consumed events,5,968 expected/actual notices; zero negative wallets, unbalanced operations, duplicate keys/notices or open DLT;40,000,000paise wallet funds equal issuance. A post-run outbox backlog drained on a later check; its exact elapsed time was not measured. [Full scope and credential-free evidence](m6-load-results.md). No maximum-capacity, sustained notification-rate or HPA runtime claim is made. Code reading of M4-M6 is deferred until after M6 implementation/testing, per the updated user plan.
+See [milestone-6-report.md](milestone-6-report.md) for exact executed100-test and actual-process functional evidence, Docker initialization failures and static configuration validation. The user subsequently executed PostgreSQL 1/5/10-VU,30-second local runs: all configured thresholds passed and both databases reconciled at each checkpoint. The10-VU run achieved163.10 mixed requests/s, transfer p95/p99 333.32/481.82ms and zero request failures. Final cumulative counts:2,982 transfers,2,986 published/consumed events,5,968 expected/actual notices; zero negative wallets, unbalanced operations, duplicate keys/notices or open DLT;40,000,000paise wallet funds equal issuance. A post-run outbox backlog drained on a later check; its exact elapsed time was not measured. [Full scope and credential-free evidence](m6-load-results.md). No maximum-capacity, sustained notification-rate or HPA runtime claim is made.

@@ -102,6 +102,6 @@ The registry is bound to127.0.0.1 and unauthenticated for local learning. Servic
 
 ## Verification
 
-The supplementary `scripts/verify_eureka_routing.py` starts real registry, Gateway and notification/Feign JARs on random loopback ports, with an isolated H2 notification database and a small fake core API. It registers the fake core at a random port, verifies name-based routing and Feign identity lookup, then deregisters it and checks503 after cache refresh. It neither loads `.env` nor touches user databases, Kafka offsets or payment state. Use it as maintainer transport evidence; our normal acceptance remains manual Postman testing against PostgreSQL/Kafka/Redis.
+The supplementary `scripts/verify_eureka_routing.py` starts real registry, Gateway and notification/Feign JARs on random loopback ports, with an isolated H2 notification database and a small fake core API. It registers the fake core at a random port, verifies name-based routing and Feign identity lookup, then deregisters it and checks503 after cache refresh. It neither loads `.env` nor touches user databases, Kafka offsets or payment state. Use it as maintainer transport evidence; normal end-to-end acceptance uses Postman against PostgreSQL/Kafka/Redis.
 
 M4/M5 code reading, M6 observability/measured load and M7 Android/automatic-sync work remain scheduled as discussed. Eureka is now part of the M5 code; it does not complete those later milestones.

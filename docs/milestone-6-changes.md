@@ -41,13 +41,11 @@ A	compose.observe.yml
 A	deploy/Dockerfile
 A	deploy/kubernetes/README.md
 A	deploy/kubernetes/apps.yml
-M	docs/OfflinePay_Skills_and_Code_Guide.pdf
 A	docs/capacity-automation.md
 A	docs/capacity-baseline.md
 A	docs/capacity-results.md
 A	docs/ci-validation.md
 A	docs/github-capacity-test.md
-M	docs/learning-guide.md
 A	docs/m6-automated-load-analysis.md
 A	docs/m6-capacity-progress.md
 A	docs/m6-first-load-redacted.json
@@ -58,7 +56,6 @@ A	docs/m6-manual-stress-results.md
 A	docs/milestone-6-changes.md
 A	docs/milestone-6-report.md
 A	docs/milestone-6.md
-A	docs/resume-notes.md
 A	docs/target-rate-test.md
 M	docs/verification.md
 A	observability/alerts.yml
@@ -68,7 +65,6 @@ A	observability/shared-resources/logback-spring.xml
 M	pom.xml
 A	scripts/Find-LocalCapacity.ps1
 A	scripts/Test-CapacityPolicy.ps1
-M	scripts/build_learning_guide.py
 A	scripts/read_load_summary.py
 A	scripts/run_capacity_ci.py
 A	scripts/test_capacity_ci.py

@@ -185,7 +185,7 @@ Compare each wallet's available balance with its WALLET sum, and reserved balanc
 | OpenFeign for separate services | Milestone 5; named clients, explicit timeouts, request-ID propagation, service authentication |
 | Tracing/Zipkin, ELK, Kubernetes, k6 and measured capacity | Milestone 6 |
 | Android/Room/Keystore/background sync | Milestone 7 |
-| GitHub publication and CI runs | Deferred by user; local Git history/workflow remain ready |
+| GitHub publication and CI runs | Not yet executed at this historical checkpoint; see [later hosted validation](ci-validation.md) |
 
 OpenFeign is not installed just for an internal same-JVM service call. We will add it at actual service boundaries, alongside safe handling of timeouts and idempotent payment commands. Logs now provide the foundation for later ELK/tracing.
 

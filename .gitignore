@@ -23,3 +23,16 @@ benchmarks/results/
 
 __pycache__/
 *.pyc
+
+# Private learning and resume materials; keep their backups outside this repository.
+private-notes/
+OfflinePay_Private_Notes*/
+docs/project-roadmap.md
+docs/resume-notes.md
+docs/OfflinePay_Skills_and_Code_Guide.pdf
+docs/learning-guide.md
+scripts/build_learning_guide.py
+scripts/fonts/DejaVuSans-Bold.ttf
+scripts/fonts/DejaVuSans.ttf
+scripts/fonts/DejaVuSansMono.ttf
+scripts/fonts/LICENSE.txt

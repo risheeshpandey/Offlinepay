@@ -1,6 +1,6 @@
 # Milestone 6: observe, test and prepare to deploy
 
-M6 adds operational visibility to the existing four applications. No new financial migration or change to allowance expiry, sync deadlines, settlement, release, JWT/cookie behavior or database ownership is included. Code walkthroughs for M4-M6 are deferred until after M6 implementation/testing, as requested.
+M6 adds operational visibility to the existing four applications. No new financial migration or change to allowance expiry, sync deadlines, settlement, release, JWT/cookie behavior or database ownership is included.
 
 | Addition | Files / behavior |
 |---|---|

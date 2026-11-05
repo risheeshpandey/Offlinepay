@@ -1,5 +1,7 @@
 # M6 verification and benchmark status
 
+> Historical local validation record. Later hosted Java 21 validation passed 184 unique cases; see [hosted CI evidence](ci-validation.md) and [hosted capacity results](capacity-results.md). Counts, failures and pending checks below retain their original checkpoint scope.
+
 **Current PostgreSQL result:** the user completed1/5/10-VU,30-second runs and both databases reconciled after every stage. At10 VUs:163.10 mixed requests/s,333.32ms transfer p95, zero request failures. Final cumulative2,986 published/consumed events and5,968 notices match. See [m6-load-results.md](m6-load-results.md) and its credential-free JSON for exact measurements, settings and limitations.
 
 Date: 22 October 2026 (IST). Project target/CI: Java21. User benchmark runtime: Java21.0.11. Authoring runtime: OpenJDK17.0.20, Maven3.9.11 with the explicit `-Djava.version=17` override. The two execution environments are distinct.

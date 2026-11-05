@@ -2,7 +2,7 @@
 
 The same project now settles signed offline payment proofs. A receiver submits one proof over an authenticated HTTP connection. A successful first settlement consumes the sender's reserved bucket, credits the receiver's available bucket, writes two balanced ledger entries and stores the immutable receipt/proof in one transaction. The earlier `/offline-protocol/verify` API and local `verify` command remain non-settling checks.
 
-V5 code walkthrough remains deferred at your request. You do not need to edit V5: this upgrade applies a new V6 migration and preserves V1-V5 byte-for-byte.
+This upgrade applies a new V6 migration and preserves V1-V5 byte-for-byte.
 
 ## 1. Rules to learn first
 
@@ -136,7 +136,7 @@ Test fixtures deliberately corrupt DB values in isolated rollback tests only. Do
 3. OfflineSettlementService.sync: sorted wallet locks -> allowance lock -> stored certificate match -> durable payment retry -> deadline/device/sequence/budget checks -> money/ledger/receipt.
 4. WalletEntity.consumeOffline; LedgerService.recordOfflineSettlement: reserved debit and receiver available credit.
 5. OfflineAllowanceEntity.settle/release; service.release: allowance counters and explicit deadline-gated release.
-6. OfflineSettlementRepository + V6: paymentId PK, unique allowance sequence, append-only accepted receipt; V5 walkthrough remains deferred.
+6. OfflineSettlementRepository + V6: paymentId PK, unique allowance sequence, append-only accepted receipt.
 
 A caller-provided paymentId uses EntityManager.persist (INSERT), never JpaRepository.save/merge, so a cross-allowance UUID collision cannot silently merge into an existing settlement while moving money. All failures roll back before the controller sends an error. Internal financial idempotency keys include ':' which public key validation rejects, preventing clients from occupying the system namespace.
 
